@@ -37,7 +37,7 @@
               <th scope="row">{{ detail.id }}</th>
               <td>{{ detail.name }}</td>
               <td>{{ detail.type }}</td>
-              <td>{{ detail.status }}</td>
+              <td>{{ generateStatus(detail) }}</td>
               <td>{{ detail.created | date:'dd.MM HH:mm' }}</td>
               <td>{{ detail.updated | date:'dd.MM HH:mm' }}</td>
               <td>{{ detail.addition }}</td>
