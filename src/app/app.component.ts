@@ -90,4 +90,8 @@ export class AppComponent {
     const total = detail.state.elements.length;
     return `${detail.status} [${current}/${total}]`;
   }
+
+  activeDetailStateComplete() {
+    this.activeDetail.state.progress += 1;
+  }
 }

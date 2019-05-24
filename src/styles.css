@@ -2,5 +2,5 @@
 
 .pointer:hover {
   cursor: pointer;
-  font-weight: bold;
+  background-color: #b8daff !important;
 }
