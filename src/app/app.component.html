@@ -1,21 +1,98 @@
 <!--The content below is only a placeholder and can be replaced.-->
 <div style="text-align:center">
-  <h1>
-    Welcome to {{ title }}!
-  </h1>
-  <img width="300" alt="Angular Logo" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTAgMjUwIj4KICAgIDxwYXRoIGZpbGw9IiNERDAwMzEiIGQ9Ik0xMjUgMzBMMzEuOSA2My4ybDE0LjIgMTIzLjFMMTI1IDIzMGw3OC45LTQzLjcgMTQuMi0xMjMuMXoiIC8+CiAgICA8cGF0aCBmaWxsPSIjQzMwMDJGIiBkPSJNMTI1IDMwdjIyLjItLjFWMjMwbDc4LjktNDMuNyAxNC4yLTEyMy4xTDEyNSAzMHoiIC8+CiAgICA8cGF0aCAgZmlsbD0iI0ZGRkZGRiIgZD0iTTEyNSA1Mi4xTDY2LjggMTgyLjZoMjEuN2wxMS43LTI5LjJoNDkuNGwxMS43IDI5LjJIMTgzTDEyNSA1Mi4xem0xNyA4My4zaC0zNGwxNy00MC45IDE3IDQwLjl6IiAvPgogIDwvc3ZnPg==">
+  <h2>
+    Кабинет
+  </h2>
 </div>
-<h2>Here are some links to help you start: </h2>
-<ul>
-  <li>
-    <h2><a target="_blank" rel="noopener" href="https://angular.io/tutorial">Tour of Heroes</a></h2>
-  </li>
-  <li>
-    <h2><a target="_blank" rel="noopener" href="https://angular.io/cli">CLI Documentation</a></h2>
-  </li>
-  <li>
-    <h2><a target="_blank" rel="noopener" href="https://blog.angular.io/">Angular blog</a></h2>
-  </li>
-</ul>
+
+<div class="m-4">
+  <ngb-tabset #t="ngbTabset">
+    <ngb-tab>
+      <ng-template ngbTabTitle><b>Детали в процессе</b></ng-template>
+      <ng-template ngbTabContent>
+        <div class="m-1">
+
+          <div class="m-2"> <span class="mr-4"><b>Фильтр:</b></span>
+            <div class="btn-group btn-group-toggle">
+              <label *ngFor="let detailType of detailTypes" class="btn-primary" ngbButtonLabel>
+                <input type="checkbox" ngbButton> {{detailType}}
+              </label>
+            </div>
+          </div>
+
+          <table class="table table-striped">
+            <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Название</th>
+              <th scope="col">Тип</th>
+              <th scope="col">Статус</th>
+              <th scope="col">Создана</th>
+              <th scope="col">Изменена</th>
+              <th scope="col">Примечание</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let detail of details" class="pointer" (click)="changeActiveDetail(detail); t.select('tab-detail-status')">
+              <th scope="row">{{ detail.id }}</th>
+              <td>{{ detail.name }}</td>
+              <td>{{ detail.type }}</td>
+              <td>{{ detail.status }}</td>
+              <td>{{ detail.created | date:'dd.MM HH:mm' }}</td>
+              <td>{{ detail.updated | date:'dd.MM HH:mm' }}</td>
+              <td>{{ detail.addition }}</td>
+            </tr>
+            </tbody>
+          </table>
+
+          <div class="d-flex justify-content-between p-2">
+            <ngb-pagination [collectionSize]="collectionSize" [(page)]="page" [pageSize]="pageSize">
+            </ngb-pagination>
+<!--            <select class="custom-select" style="width: auto" [(ngModel)]="pageSize">-->
+<!--              <option [ngValue]="2">2 items per page</option>-->
+<!--              <option [ngValue]="4">4 items per page</option>-->
+<!--              <option [ngValue]="6">6 items per page</option>-->
+<!--            </select>-->
+          </div>
+        </div>
+      </ng-template>
+    </ngb-tab>
+    <ngb-tab id="tab-detail-status">
+      <ng-template ngbTabTitle><b>Статус детали</b></ng-template>
+      <ng-template ngbTabContent>
+        <div class="m-1">
+
+          <div class="col mt-4">
+            <div ngbDropdown class="d-inline-block">
+              <button class="btn btn-outline-primary" id="dropdownBasic1" ngbDropdownToggle>Выбор детали</button>
+              <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
+                <button *ngFor="let detail of details" (click)="changeActiveDetail(detail)" ngbDropdownItem>{{detail.name}}</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="col mt-2" *ngIf="activeDetail" >
+            <h2>{{activeDetail.name}}</h2>
+            <p><b>Тип</b>: {{activeDetail.type}}</p>
+            <div>
+              <label for="detail-addition" class="d-block font-weight-bold">Примечание:</label>
+              <textarea class="form-control rounded-0" rows="4" id="detail-addition" [(ngModel)]="activeDetail.addition"></textarea>
+            </div>
+          </div>
+
+        </div>
+      </ng-template>
+    </ngb-tab>
+    <ngb-tab>
+      <ng-template ngbTabTitle><b>Документы</b></ng-template>
+      <ng-template ngbTabContent>
+        <div class="m-1">
+          <p>Ссылка на документ 1</p>
+          <p>Ссылка на документ 2</p>
+        </div>
+      </ng-template>
+    </ngb-tab>
+  </ngb-tabset>
+</div>
 
 <router-outlet></router-outlet>
