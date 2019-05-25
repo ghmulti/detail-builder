@@ -27,6 +27,14 @@ interface Detail {
   state: DetailState;
 }
 
+interface Product {
+  id?: number;
+  name: string;
+  details: Detail[];
+  created: Date;
+  updated: Date;
+}
+
 const TEMPLATES: DetailTemplate[] = [
   {
     name: 'Шаблон детали 1',
@@ -57,7 +65,7 @@ const DETAILS: Detail[] = [
     updated: new Date('1995-12-17T03:24:00'),
     state: {
       elements: [{name: 'Шаг 1'}, {name: 'Шаг 2'}, {name: 'Шаг 3'}, {name: 'Шаг 4'}, {name: 'Шаг 5'}],
-      progress: 1
+      progress: 0
     }
   },
   {
@@ -86,6 +94,15 @@ const DETAILS: Detail[] = [
   }
 ];
 
+const PRODUCTS: Product[] = [
+  {
+    name: 'Изделие 1',
+    created: new Date(),
+    updated: new Date(),
+    details: DETAILS
+  }
+];
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -111,6 +128,7 @@ export class AppComponent {
   }
 
   templates = TEMPLATES;
+  products = PRODUCTS;
 
   changeActiveDetail(detail: Detail) {
     this.activeDetail = detail;
@@ -135,8 +153,7 @@ export class AppComponent {
   }
 
   newDetail(content) {
-    this.modalService.open(content, {ariaLabelledBy: 'modal-basic-title'}).result.then((result) => {
-    }, (reason) => {
-    });
+    this.modalService.open(content, {windowClass : 'myCustomModalClass', size: 'lg', ariaLabelledBy: 'modal-basic-title'})
+      .result.then((result) => {}, (reason) => {});
   }
 }

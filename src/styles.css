@@ -4,3 +4,7 @@
   cursor: pointer;
   background-color: #b8daff !important;
 }
+
+.myCustomModalClass .modal-dialog {
+  max-height: 600px;
+}

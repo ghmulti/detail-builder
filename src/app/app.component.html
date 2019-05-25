@@ -8,6 +8,48 @@
 <div class="m-4">
   <ngb-tabset #t="ngbTabset">
     <ngb-tab>
+      <ng-template ngbTabTitle><b>Изделия</b></ng-template>
+      <ng-template ngbTabContent>
+
+        <div class="mt-2 mb-2">
+          <div class="clearfix">
+            <div class="float-left">
+              <input type="text" class="form-control" placeholder="Фильтр" />
+            </div>
+            <button type="button" class="btn btn-outline-success float-right" (click)="newDetail(content)">Новое изделие</button>
+          </div>
+        </div>
+
+        <ngb-accordion #acc="ngbAccordion" activeIds="ngb-panel-0">
+          <ngb-panel *ngFor="let product of products" title="{{product.name}}">
+            <ng-template ngbPanelContent>
+                <ngb-tabset type="pills">
+                  <ngb-tab title="Документация по детали">
+                    <ng-template ngbTabContent>
+                      <p>Ссылки на документацию</p>
+                    </ng-template>
+                  </ngb-tab>
+                  <ngb-tab>
+                    <ng-template ngbTabTitle>Описание</ng-template>
+                    <ng-template ngbTabContent>
+                      <p>Краткое описание</p>
+                    </ng-template>
+                  </ngb-tab>
+                  <ngb-tab>
+                    <ng-template ngbTabTitle>Сроки</ng-template>
+                    <ng-template ngbTabContent>
+                      <p>Информация по срокам</p>
+                    </ng-template>
+                  </ngb-tab>
+                </ngb-tabset>
+                <p *ngFor="let productDetail of product.details"><ngb-progressbar type="success" height="20px" [value]="100*productDetail.state.progress/productDetail.state.elements.length">{{productDetail.name}}</ngb-progressbar></p>
+            </ng-template>
+          </ngb-panel>
+        </ngb-accordion>
+      </ng-template>
+    </ngb-tab>
+
+    <ngb-tab>
       <ng-template ngbTabTitle><b>Детали в процессе</b></ng-template>
       <ng-template ngbTabContent>
         <div class="m-1">
@@ -135,7 +177,7 @@
               <textarea class="form-control rounded-0" rows="20">{{templateJson()}}</textarea>
             </div>
             <div>
-              <button type="button" class="btn mt-2 btn-success">Созранить шаблон</button>
+              <button type="button" class="btn mt-2 btn-success">Сохранить шаблон</button>
               <button type="button" class="btn mt-2 ml-2 btn-outline-success" (click)="newDetail(content)">Новая деталь из шаблона</button>
             </div>
           </div>
@@ -156,12 +198,27 @@
   <div class="modal-body">
     <form>
       <div class="form-group">
-        <label>Название</label>
+        <input type="text" class="form-control" id="newDetailName" placeholder="Название">
+      </div>
+      <div class="form-group">
+        <input type="text" class="form-control" id="newDetailType" placeholder="Тип">
+      </div>
+      <div class="form-group">
+        <textarea class="form-control rounded-0" rows="3" id="new-detail-addition" placeholder="Дополнение"></textarea>
+      </div>
+      <div ngbDropdown class="d-inline-block">
+        <button class="btn btn-outline-primary" id="dropdownBasic3" ngbDropdownToggle>Выбор шаблона детали</button>
+        <div ngbDropdownMenu aria-labelledby="dropdownBasic3">
+          <button *ngFor="let template of templates" (click)="changeActiveTemplate(template)" ngbDropdownItem>{{template.name}}</button>
+        </div>
+      </div>
+      <div class="col mt-2" *ngIf="activeTemplate">
+        <textarea class="form-control rounded-0" rows="10">{{templateJson()}}</textarea>
       </div>
     </form>
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-outline-dark" (click)="modal.close('Save click')">Save</button>
+    <button type="button" class="btn btn-outline-dark" (click)="modal.close()">Создать</button>
   </div>
 </ng-template>
 
