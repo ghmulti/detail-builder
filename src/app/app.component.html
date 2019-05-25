@@ -22,7 +22,7 @@
                   </label>
                 </div>
               </div>
-              <button type="button" class="btn btn-outline-success float-right">Новая деталь</button>
+              <button type="button" class="btn btn-outline-success float-right" (click)="newDetail(content)">Новая деталь</button>
             </div>
           </div>
 
@@ -136,7 +136,7 @@
             </div>
             <div>
               <button type="button" class="btn mt-2 btn-success">Созранить шаблон</button>
-              <button type="button" class="btn mt-2 ml-2 btn-outline-success">Новая деталь из шаблона</button>
+              <button type="button" class="btn mt-2 ml-2 btn-outline-success" (click)="newDetail(content)">Новая деталь из шаблона</button>
             </div>
           </div>
 
@@ -145,5 +145,24 @@
     </ngb-tab>
   </ngb-tabset>
 </div>
+
+<ng-template #content let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Новая деталь</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <form>
+      <div class="form-group">
+        <label>Название</label>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-dark" (click)="modal.close('Save click')">Save</button>
+  </div>
+</ng-template>
 
 <router-outlet></router-outlet>

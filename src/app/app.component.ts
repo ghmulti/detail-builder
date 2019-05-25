@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 interface ElementInfo {
   name: string;
@@ -92,6 +93,8 @@ const DETAILS: Detail[] = [
 })
 export class AppComponent {
 
+  constructor(private modalService: NgbModal) {}
+
   activeDetail: Detail;
   activeTemplate: DetailTemplate;
 
@@ -129,5 +132,11 @@ export class AppComponent {
 
   templateJson(): string {
     return JSON.stringify(this.activeTemplate.elements, undefined, 2);
+  }
+
+  newDetail(content) {
+    this.modalService.open(content, {ariaLabelledBy: 'modal-basic-title'}).result.then((result) => {
+    }, (reason) => {
+    });
   }
 }
