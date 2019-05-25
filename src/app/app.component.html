@@ -79,6 +79,7 @@
 
           <div class="col mt-2" *ngIf="activeDetail" >
             <h2>{{activeDetail.name}}</h2>
+            <p><ngb-progressbar [showValue]="true" type="info" [value]="100*activeDetail.state.progress/activeDetail.state.elements.length"></ngb-progressbar></p>
             <p><b>Тип</b>: {{activeDetail.type}}</p>
             <div>
               <label for="detail-addition" class="d-block font-weight-bold">Примечание:</label>
@@ -101,9 +102,6 @@
               </tbody>
             </table>
 
-<!--            <div class="progress">-->
-<!--              <div class="progress-bar" role="progressbar" aria-valuenow="{{activeDetail.state.progress}}" aria-valuemin="0" aria-valuemax="{{activeDetail.state.elements.length}}"></div>-->
-<!--            </div>-->
           </div>
 
         </div>
@@ -115,6 +113,24 @@
         <div class="m-1">
           <p>Ссылка на документ 1</p>
           <p>Ссылка на документ 2</p>
+        </div>
+      </ng-template>
+    </ngb-tab>
+    <ngb-tab>
+      <ng-template ngbTabTitle><b>Шаблон детали</b></ng-template>
+      <ng-template ngbTabContent>
+        <div class="m-1">
+
+          <div class="col mt-4">
+            <div ngbDropdown class="d-inline-block">
+              <button class="btn btn-outline-primary" id="dropdownBasic2" ngbDropdownToggle>Выбор шаблона детали</button>
+              <div ngbDropdownMenu aria-labelledby="dropdownBasic2">
+                <button *ngFor="let template of templates" (click)="changeActiveTemplate(template)" ngbDropdownItem>{{template.name}}</button>
+              </div>
+            </div>
+          </div>
+
+
         </div>
       </ng-template>
     </ngb-tab>

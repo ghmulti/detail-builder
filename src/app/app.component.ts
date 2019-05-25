@@ -10,6 +10,11 @@ interface DetailState {
   elements: ElementInfo[];
 }
 
+interface DetailTemplate {
+  name: string;
+  elements: ElementInfo[];
+}
+
 interface Detail {
   id?: number;
   name: string;
@@ -20,6 +25,26 @@ interface Detail {
   addition: string;
   state: DetailState;
 }
+
+const TEMPLATES: DetailTemplate[] = [
+  {
+    name: 'Шаблон детали 1',
+    elements: [
+      {
+        name: 'Шаг 1'
+      },
+      {
+        name: 'Шаг 2'
+      },
+      {
+        name: 'Шаг 3'
+      },
+      {
+        name: 'Шаг 4'
+      }
+    ]
+  }
+];
 
 const DETAILS: Detail[] = [
   {
@@ -68,6 +93,7 @@ const DETAILS: Detail[] = [
 export class AppComponent {
 
   activeDetail: Detail;
+  activeTemplate: DetailTemplate;
 
   detailTypes = DETAILS.map(a => a.type );
 
@@ -81,6 +107,8 @@ export class AppComponent {
       .slice((this.page - 1) * this.pageSize, (this.page - 1) * this.pageSize + this.pageSize);
   }
 
+  templates = TEMPLATES;
+
   changeActiveDetail(detail: Detail) {
     this.activeDetail = detail;
   }
@@ -93,5 +121,9 @@ export class AppComponent {
 
   activeDetailStateComplete() {
     this.activeDetail.state.progress += 1;
+  }
+
+  changeActiveTemplate(template: DetailTemplate) {
+    this.activeTemplate = template;
   }
 }
