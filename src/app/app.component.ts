@@ -126,4 +126,8 @@ export class AppComponent {
   changeActiveTemplate(template: DetailTemplate) {
     this.activeTemplate = template;
   }
+
+  templateJson(): string {
+    return JSON.stringify(this.activeTemplate.elements, undefined, 2);
+  }
 }

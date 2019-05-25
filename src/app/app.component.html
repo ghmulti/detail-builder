@@ -101,7 +101,6 @@
               </tr>
               </tbody>
             </table>
-
           </div>
 
         </div>
@@ -130,6 +129,16 @@
             </div>
           </div>
 
+          <div class="col mt-2" *ngIf="activeTemplate" >
+            <h2>{{activeTemplate.name}}</h2>
+            <div>
+              <textarea class="form-control rounded-0" rows="20">{{templateJson()}}</textarea>
+            </div>
+            <div>
+              <button type="button" class="btn mt-2 btn-success">Созранить шаблон</button>
+              <button type="button" class="btn mt-2 ml-2 btn-outline-success">Новая деталь из шаблона</button>
+            </div>
+          </div>
 
         </div>
       </ng-template>
