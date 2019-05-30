@@ -24,9 +24,10 @@
           <ngb-panel *ngFor="let product of products" title="{{product.name}}">
             <ng-template ngbPanelContent>
                 <ngb-tabset type="pills">
-                  <ngb-tab title="Документация по детали">
+                  <ngb-tab title="Документация по изделию">
                     <ng-template ngbTabContent>
                       <p>Ссылки на документацию</p>
+                      <button type="button" class="btn btn-outline-success" (click)="newDetail(content)">Новая деталь</button>
                     </ng-template>
                   </ngb-tab>
                   <ngb-tab>
@@ -42,7 +43,12 @@
                     </ng-template>
                   </ngb-tab>
                 </ngb-tabset>
-                <p *ngFor="let detailId of product.detailIds"><ngb-progressbar type="success" height="20px" [value]="100*details.get(detailId).state.progress/details.get(detailId).state.elements.length">{{details.get(detailId).name}}</ngb-progressbar></p>
+                <div class="mt-2">
+                  <p *ngFor="let detailId of product.detailIds">
+                    <label class="pointer font-weight-bold" (click)="changeActiveDetail(details.get(detailId)); t.select('tab-detail-status')">{{details.get(detailId).name}}</label>
+                    <ngb-progressbar [showValue]="true" type="success" height="20px" [value]="100*details.get(detailId).state.progress/details.get(detailId).state.elements.length"></ngb-progressbar>
+                  </p>
+                </div>
             </ng-template>
           </ngb-panel>
         </ngb-accordion>
@@ -64,7 +70,6 @@
                   </label>
                 </div>
               </div>
-              <button type="button" class="btn btn-outline-success float-right" (click)="newDetail(content)">Новая деталь</button>
             </div>
           </div>
 
@@ -78,7 +83,7 @@
               <th scope="col">Создана</th>
               <th scope="col">Изменена</th>
               <th scope="col">Примечание</th>
-              <th scope="col">Примечание</th>
+              <th scope="col">Место</th>
             </tr>
             </thead>
             <tbody>
@@ -90,6 +95,7 @@
               <td>{{ detail.created | date:'dd.MM HH:mm' }}</td>
               <td>{{ detail.updated | date:'dd.MM HH:mm' }}</td>
               <td>{{ detail.addition }}</td>
+              <td></td>
             </tr>
             </tbody>
           </table>
@@ -179,7 +185,6 @@
             </div>
             <div>
               <button type="button" class="btn mt-2 btn-success">Сохранить шаблон</button>
-              <button type="button" class="btn mt-2 ml-2 btn-outline-success" (click)="newDetail(content)">Новая деталь из шаблона</button>
             </div>
           </div>
 
