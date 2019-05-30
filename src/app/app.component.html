@@ -150,6 +150,7 @@
               <tbody>
               <tr>
                 <td *ngFor="let element of activeDetail.state.elements; index as i">
+                  <div *ngIf="element.completedAt">{{ element.completedAt | date:'dd.MM HH:mm:ss' }}</div>
                   <div *ngIf="i < activeDetail.state.progress">Готово</div>
                   <div *ngIf="i == activeDetail.state.progress"><button type="button" (click)="activeDetailStateComplete()" class="btn btn-success">Завершить</button></div>
                   <div *ngIf="i > activeDetail.state.progress" class="disabled">Не доступно</div>

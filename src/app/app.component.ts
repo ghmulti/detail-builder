@@ -7,6 +7,7 @@ interface ElementInfo {
   name: string;
   location?: string;
   comments?: string[];
+  completedAt?: Date;
   meta?: Map<string, string>[];
 }
 
@@ -84,7 +85,13 @@ const DETAILS: Detail[] = [
     addition: '-',
     updated: new Date('1995-12-17T03:24:00'),
     state: {
-      elements: [{name: 'Шаг 1'}, {name: 'Шаг 2'}, {name: 'Шаг 3'}, {name: 'Шаг 4'}, {name: 'Шаг 5'}],
+      elements: [
+        {name: 'Шаг 1', completedAt: new Date()},
+        {name: 'Шаг 2', completedAt: new Date()},
+        {name: 'Шаг 3', completedAt: new Date()},
+        {name: 'Шаг 4'},
+        {name: 'Шаг 5'}
+      ],
       progress: 3
     }
   },
@@ -97,7 +104,13 @@ const DETAILS: Detail[] = [
     addition: '-',
     updated: new Date('1995-12-17T03:24:00'),
     state: {
-      elements: [{name: 'Шаг 1'}, {name: 'Шаг 2'}, {name: 'Шаг 3'}, {name: 'Шаг 4'}, {name: 'Шаг 5'}],
+      elements: [
+        {name: 'Шаг 1', completedAt: new Date()},
+        {name: 'Шаг 2', completedAt: new Date()},
+        {name: 'Шаг 3', completedAt: new Date()},
+        {name: 'Шаг 4', completedAt: new Date()},
+        {name: 'Шаг 5', completedAt: new Date()}
+      ],
       progress: 5
     }
   }
@@ -162,6 +175,7 @@ export class AppComponent {
   }
 
   activeDetailStateComplete() {
+    this.activeDetail.state.elements[this.activeDetail.state.progress].completedAt = new Date();
     this.activeDetail.state.progress += 1;
     if (this.activeDetail.state.progress === this.activeDetail.state.elements.length) {
       this.activeDetail.status = 'Готово';
