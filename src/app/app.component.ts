@@ -149,7 +149,7 @@ export class AppComponent {
   }
 
   generateStatus(detail: Detail): string {
-    const current = detail.state.progress + 1;
+    const current = detail.state.progress;
     const total = detail.state.elements.length;
     return `${detail.status} [${current}/${total}]`;
   }
