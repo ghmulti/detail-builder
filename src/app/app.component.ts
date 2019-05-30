@@ -134,17 +134,19 @@ export class AppComponent {
     .reduce((agg: Map<string, Detail>, cv: Detail, ci) => agg.set(cv.id, cv), new Map<string, Detail>());
 
   detailsSize = DETAILS.length;
+  detailSearch = '';
 
   activeDetail: Detail;
   activeTemplate: DetailTemplate;
 
-  detailTypes = Array.from(this.details.values()).map(a => a.type );
+  // detailTypes = Array.from(this.details.values()).map(a => a.type );
 
   page = 1;
   pageSize = 50;
 
   templates = Object.assign([], TEMPLATES);
   products: Product[] = Object.assign([], PRODUCTS);
+  productSearch = '';
 
   newDatailEntry: Detail;
   newProductEntry: Product;
