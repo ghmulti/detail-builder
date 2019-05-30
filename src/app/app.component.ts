@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
+const output = console.log;
+
 interface ElementInfo {
   name: string;
   meta?: Map<string, string>[];
@@ -17,12 +19,12 @@ interface DetailTemplate {
 }
 
 interface Detail {
-  id?: number;
+  id?: string;
   name: string;
   status: string;
   type: string;
-  created: Date;
-  updated: Date;
+  created?: Date;
+  updated?: Date;
   addition: string;
   state: DetailState;
 }
@@ -30,7 +32,7 @@ interface Detail {
 interface Product {
   id?: number;
   name: string;
-  details: Detail[];
+  detailIds: string[];
   created: Date;
   updated: Date;
 }
@@ -57,6 +59,7 @@ const TEMPLATES: DetailTemplate[] = [
 
 const DETAILS: Detail[] = [
   {
+    id: Math.random().toString(36).substring(7),
     name: 'Деталь 1',
     type: 'Тип 1',
     status: 'В разработке',
@@ -69,6 +72,7 @@ const DETAILS: Detail[] = [
     }
   },
   {
+    id: Math.random().toString(36).substring(7),
     name: 'Деталь 2',
     type: 'Тип 2',
     status: 'В разработке',
@@ -81,6 +85,7 @@ const DETAILS: Detail[] = [
     }
   },
   {
+    id: Math.random().toString(36).substring(7),
     name: 'Деталь 3',
     type: 'Тип 3',
     status: 'В разработке',
@@ -99,7 +104,7 @@ const PRODUCTS: Product[] = [
     name: 'Изделие 1',
     created: new Date(),
     updated: new Date(),
-    details: DETAILS
+    detailIds: DETAILS.map((v) => v.id)
   }
 ];
 
@@ -112,23 +117,32 @@ export class AppComponent {
 
   constructor(private modalService: NgbModal) {}
 
-  activeDetail: Detail;
-  activeTemplate: DetailTemplate;
-
-  detailTypes = DETAILS.map(a => a.type );
-
-  page = 1;
-  pageSize = 50;
-  collectionSize = DETAILS.length;
-
-  get details(): Detail[] {
-    return DETAILS
-      .map((detail, i) => ({id: i + 1, ...detail}))
+  get pagedDetails(): Detail[] {
+    return Array.from(this.details.values())
       .slice((this.page - 1) * this.pageSize, (this.page - 1) * this.pageSize + this.pageSize);
   }
 
-  templates = TEMPLATES;
-  products = PRODUCTS;
+  get allDetails(): Detail[] {
+    return Array.from(this.details.values());
+  }
+
+  details: Map<string, Detail> = Object.assign([], DETAILS).map((detail, i) => ({id: (i + 1).toString(), ...detail}))
+    .reduce((agg: Map<string, Detail>, cv: Detail, ci) => agg.set(cv.id, cv), new Map<string, Detail>());
+
+  detailsSize = DETAILS.length;
+
+  activeDetail: Detail;
+  activeTemplate: DetailTemplate;
+
+  detailTypes = Array.from(this.details.values()).map(a => a.type );
+
+  page = 1;
+  pageSize = 50;
+
+  templates = Object.assign([], TEMPLATES);
+  products: Product[] = Object.assign([], PRODUCTS);
+
+  newDatailEntry: Detail;
 
   changeActiveDetail(detail: Detail) {
     this.activeDetail = detail;
@@ -152,8 +166,27 @@ export class AppComponent {
     return JSON.stringify(this.activeTemplate.elements, undefined, 2);
   }
 
+  addDetail(detail: Detail) {
+    this.details.set(this.newDatailEntry.id, this.newDatailEntry);
+    this.detailsSize++;
+  }
+
   newDetail(content) {
+    this.newDatailEntry = {
+      state: {progress: 0, elements: []},
+      name: '',
+      status: 'В разработке',
+      addition: '',
+      type: '',
+      id : Math.random().toString(36).substring(7)
+    };
     this.modalService.open(content, {windowClass : 'myCustomModalClass', size: 'lg', ariaLabelledBy: 'modal-basic-title'})
-      .result.then((result) => {}, (reason) => {});
+      .result.then((result) => {
+        this.newDatailEntry.created = new Date();
+        this.newDatailEntry.updated = new Date();
+        this.newDatailEntry.state.elements = Object.assign([], this.activeTemplate.elements);
+        output(this.newDatailEntry);
+        this.addDetail(this.newDatailEntry);
+      }, (reason) => { output('rejected'); });
   }
 }

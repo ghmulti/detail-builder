@@ -42,7 +42,7 @@
                     </ng-template>
                   </ngb-tab>
                 </ngb-tabset>
-                <p *ngFor="let productDetail of product.details"><ngb-progressbar type="success" height="20px" [value]="100*productDetail.state.progress/productDetail.state.elements.length">{{productDetail.name}}</ngb-progressbar></p>
+                <p *ngFor="let detailId of product.detailIds"><ngb-progressbar type="success" height="20px" [value]="100*details.get(detailId).state.progress/details.get(detailId).state.elements.length">{{details.get(detailId).name}}</ngb-progressbar></p>
             </ng-template>
           </ngb-panel>
         </ngb-accordion>
@@ -81,7 +81,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr *ngFor="let detail of details" class="pointer" (click)="changeActiveDetail(detail); t.select('tab-detail-status')">
+            <tr *ngFor="let detail of pagedDetails" class="pointer" (click)="changeActiveDetail(detail); t.select('tab-detail-status')">
               <th scope="row">{{ detail.id }}</th>
               <td>{{ detail.name }}</td>
               <td>{{ detail.type }}</td>
@@ -94,7 +94,7 @@
           </table>
 
           <div class="d-flex justify-content-between p-2">
-            <ngb-pagination [collectionSize]="collectionSize" [(page)]="page" [pageSize]="pageSize">
+            <ngb-pagination [collectionSize]="detailsSize" [(page)]="page" [pageSize]="pageSize">
             </ngb-pagination>
 <!--            <select class="custom-select" style="width: auto" [(ngModel)]="pageSize">-->
 <!--              <option [ngValue]="2">2 items per page</option>-->
@@ -114,7 +114,7 @@
             <div ngbDropdown class="d-inline-block">
               <button class="btn btn-outline-primary" id="dropdownBasic1" ngbDropdownToggle>Выбор детали</button>
               <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
-                <button *ngFor="let detail of details" (click)="changeActiveDetail(detail)" ngbDropdownItem>{{detail.name}}</button>
+                <button *ngFor="let detail of allDetails" (click)="changeActiveDetail(detail)" ngbDropdownItem>{{detail.name}}</button>
               </div>
             </div>
           </div>
@@ -198,13 +198,13 @@
   <div class="modal-body">
     <form>
       <div class="form-group">
-        <input type="text" class="form-control" id="newDetailName" placeholder="Название">
+        <input type="text" class="form-control" id="newDetailName" name="newDetailName" placeholder="Название" [(ngModel)]="newDatailEntry.name">
       </div>
       <div class="form-group">
-        <input type="text" class="form-control" id="newDetailType" placeholder="Тип">
+        <input type="text" class="form-control" id="newDetailType" name="newDetailType" placeholder="Тип" [(ngModel)]="newDatailEntry.type">
       </div>
       <div class="form-group">
-        <textarea class="form-control rounded-0" rows="3" id="new-detail-addition" placeholder="Дополнение"></textarea>
+        <textarea class="form-control rounded-0" rows="3" id="newDetailAddition" name="newDetailAddition" placeholder="Дополнение" [(ngModel)]="newDatailEntry.addition"></textarea>
       </div>
       <div ngbDropdown class="d-inline-block">
         <button class="btn btn-outline-primary" id="dropdownBasic3" ngbDropdownToggle>Выбор шаблона детали</button>
