@@ -5,6 +5,8 @@ const output = console.log;
 
 interface ElementInfo {
   name: string;
+  location?: string;
+  comments?: string[];
   meta?: Map<string, string>[];
 }
 
@@ -42,7 +44,9 @@ const TEMPLATES: DetailTemplate[] = [
     name: 'Шаблон детали 1',
     elements: [
       {
-        name: 'Шаг 1'
+        name: 'Шаг 1',
+        location: 'Цех 1',
+        comments: []
       },
       {
         name: 'Шаг 2'
@@ -67,7 +71,7 @@ const DETAILS: Detail[] = [
     addition: '-',
     updated: new Date('1995-12-17T03:24:00'),
     state: {
-      elements: [{name: 'Шаг 1'}, {name: 'Шаг 2'}, {name: 'Шаг 3'}, {name: 'Шаг 4'}, {name: 'Шаг 5'}],
+      elements: [{name: 'Шаг 1', location: 'Цех 1', comments: []}, {name: 'Шаг 2'}, {name: 'Шаг 3'}, {name: 'Шаг 4'}, {name: 'Шаг 5'}],
       progress: 0
     }
   },
@@ -88,7 +92,7 @@ const DETAILS: Detail[] = [
     id: Math.random().toString(36).substring(7),
     name: 'Деталь 3',
     type: 'Тип 3',
-    status: 'В разработке',
+    status: 'Готово',
     created: new Date('1995-12-17T03:24:00'),
     addition: '-',
     updated: new Date('1995-12-17T03:24:00'),
@@ -157,6 +161,9 @@ export class AppComponent {
 
   activeDetailStateComplete() {
     this.activeDetail.state.progress += 1;
+    if (this.activeDetail.state.progress === this.activeDetail.state.elements.length) {
+      this.activeDetail.status = 'Готово';
+    }
   }
 
   changeActiveTemplate(template: DetailTemplate) {
