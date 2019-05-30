@@ -20,14 +20,14 @@
           </div>
         </div>
 
-        <ngb-accordion #acc="ngbAccordion" activeIds="ngb-panel-0">
-          <ngb-panel *ngFor="let product of products | search:'id,name':productSearch" title="{{product.name}}">
+        <ngb-accordion #acc="ngbAccordion">  <!-- activeIds="ngb-panel-0"-->
+          <ngb-panel *ngFor="let product of products | searchProd:'id,name':productSearch" title="{{product.name}}">
             <ng-template ngbPanelContent>
                 <ngb-tabset type="pills">
                   <ngb-tab title="Документация по изделию">
                     <ng-template ngbTabContent>
                       <p>Ссылки на документацию</p>
-                      <button type="button" class="btn btn-outline-success" (click)="newDetail(content)">Новая деталь</button>
+                      <button type="button" class="btn btn-outline-success" (click)="newDetail(product, content)">Новая деталь</button>
                     </ng-template>
                   </ngb-tab>
                   <ngb-tab>
@@ -92,7 +92,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr *ngFor="let detail of pagedDetails | search:'id,name':detailSearch" class="pointer" (click)="changeActiveDetail(detail); t.select('tab-detail-status')">
+            <tr *ngFor="let detail of pagedDetails | searchDet:'id,name':detailSearch" class="pointer" (click)="changeActiveDetail(detail); t.select('tab-detail-status')">
               <th scope="row">{{ detail.id }}</th>
               <td>{{ detail.name }}</td>
               <td>{{ detail.type }}</td>

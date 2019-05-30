@@ -5,12 +5,13 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import {FormsModule} from '@angular/forms';
-import {SearchPipe} from './search-pipe';
+import {SearchDetailPipe, SearchProductPipe} from './search-pipe';
 
 @NgModule({
   declarations: [
     AppComponent,
-    SearchPipe
+    SearchProductPipe,
+    SearchDetailPipe
   ],
   imports: [
     BrowserModule,

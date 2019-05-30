@@ -20,7 +20,7 @@ interface DetailTemplate {
   elements: ElementInfo[];
 }
 
-interface Detail {
+export interface Detail {
   id?: string;
   name: string;
   status: string;
@@ -31,7 +31,7 @@ interface Detail {
   state: DetailState;
 }
 
-interface Product {
+export interface Product {
   id?: string;
   name: string;
   detailIds: string[];
@@ -176,16 +176,17 @@ export class AppComponent {
     return JSON.stringify(this.activeTemplate.elements, undefined, 2);
   }
 
-  addDetail(detail: Detail) {
+  addDetail(product: Product, detail: Detail) {
     this.details.set(this.newDatailEntry.id, this.newDatailEntry);
     this.detailsSize++;
+    product.detailIds.push(detail.id);
   }
 
   addProduct(product: Product) {
     this.products.push(product);
   }
 
-  newDetail(content) {
+  newDetail(product: Product, content) {
     this.newDatailEntry = {
       state: {progress: 0, elements: []},
       name: '',
@@ -200,7 +201,7 @@ export class AppComponent {
         this.newDatailEntry.updated = new Date();
         this.newDatailEntry.state.elements = Object.assign([], this.activeTemplate.elements);
         output(this.newDatailEntry);
-        this.addDetail(this.newDatailEntry);
+        this.addDetail(product, this.newDatailEntry);
       }, (reason) => { output('rejected'); });
   }
 
