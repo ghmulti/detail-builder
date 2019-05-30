@@ -30,11 +30,11 @@ interface Detail {
 }
 
 interface Product {
-  id?: number;
+  id?: string;
   name: string;
   detailIds: string[];
-  created: Date;
-  updated: Date;
+  created?: Date;
+  updated?: Date;
 }
 
 const TEMPLATES: DetailTemplate[] = [
@@ -143,6 +143,7 @@ export class AppComponent {
   products: Product[] = Object.assign([], PRODUCTS);
 
   newDatailEntry: Detail;
+  newProductEntry: Product;
 
   changeActiveDetail(detail: Detail) {
     this.activeDetail = detail;
@@ -171,6 +172,10 @@ export class AppComponent {
     this.detailsSize++;
   }
 
+  addProduct(product: Product) {
+    this.products.push(product);
+  }
+
   newDetail(content) {
     this.newDatailEntry = {
       state: {progress: 0, elements: []},
@@ -188,5 +193,20 @@ export class AppComponent {
         output(this.newDatailEntry);
         this.addDetail(this.newDatailEntry);
       }, (reason) => { output('rejected'); });
+  }
+
+  newProduct(content) {
+    this.newProductEntry = {
+      name: '',
+      detailIds: [],
+      id : Math.random().toString(36).substring(7)
+    };
+    this.modalService.open(content, {windowClass : 'myCustomModalClass', size: 'lg', ariaLabelledBy: 'modal-basic-title'})
+      .result.then((result) => {
+      this.newProductEntry.created = new Date();
+      this.newProductEntry.updated = new Date();
+      output(this.newProductEntry);
+      this.addProduct(this.newProductEntry);
+    }, (reason) => { output('rejected'); });
   }
 }
