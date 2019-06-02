@@ -6,6 +6,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import {FormsModule} from '@angular/forms';
 import {SearchDetailPipe, SearchProductPipe} from './search-pipe';
+import {BackendService} from './backend.service';
 
 @NgModule({
   declarations: [
@@ -19,7 +20,7 @@ import {SearchDetailPipe, SearchProductPipe} from './search-pipe';
     NgbModule,
     FormsModule
   ],
-  providers: [],
+  providers: [BackendService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

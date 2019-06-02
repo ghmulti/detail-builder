@@ -213,13 +213,13 @@
   <div class="modal-body">
     <form>
       <div class="form-group">
-        <input type="text" class="form-control" id="newDetailName" name="newDetailName" placeholder="Название" [(ngModel)]="newDatailEntry.name">
+        <input type="text" class="form-control" id="newDetailName" name="newDetailName" placeholder="Название" [(ngModel)]="newDetailEntry.name">
       </div>
       <div class="form-group">
-        <input type="text" class="form-control" id="newDetailType" name="newDetailType" placeholder="Тип" [(ngModel)]="newDatailEntry.type">
+        <input type="text" class="form-control" id="newDetailType" name="newDetailType" placeholder="Тип" [(ngModel)]="newDetailEntry.type">
       </div>
       <div class="form-group">
-        <textarea class="form-control rounded-0" rows="3" id="newDetailAddition" name="newDetailAddition" placeholder="Дополнение" [(ngModel)]="newDatailEntry.addition"></textarea>
+        <textarea class="form-control rounded-0" rows="3" id="newDetailAddition" name="newDetailAddition" placeholder="Дополнение" [(ngModel)]="newDetailEntry.addition"></textarea>
       </div>
       <div ngbDropdown class="d-inline-block">
         <button class="btn btn-outline-primary" id="dropdownBasic3" ngbDropdownToggle>Выбор шаблона детали</button>

@@ -1,50 +1,9 @@
 import { Component } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { v4 as uuid } from 'uuid';
+import {BackendService} from './backend.service';
+import {Detail, Product, DetailTemplate, ElementInfo, buildRandomId} from './domain';
 
 const output = console.log;
-
-function buildRandomId(): string {
-  // return Math.random().toString(36).substring(7);
-  return uuid();
-}
-
-interface ElementInfo {
-  name: string;
-  location?: string;
-  comments?: string[];
-  completedAt?: Date;
-  meta?: Map<string, string>[];
-}
-
-interface DetailState {
-  progress: number;
-  elements: ElementInfo[];
-}
-
-interface DetailTemplate {
-  name: string;
-  elements: ElementInfo[];
-}
-
-export interface Detail {
-  id?: string;
-  name: string;
-  status: string;
-  type: string;
-  created?: Date;
-  updated?: Date;
-  addition: string;
-  state: DetailState;
-}
-
-export interface Product {
-  id?: string;
-  name: string;
-  detailIds: string[];
-  created?: Date;
-  updated?: Date;
-}
 
 const DEFAULT_TEMPLATE_ELEMENTS: ElementInfo[] = [
   {
@@ -57,76 +16,6 @@ const DEFAULT_TEMPLATE_ELEMENTS: ElementInfo[] = [
   }
 ];
 
-const TEMPLATES: DetailTemplate[] = [
-  {
-    name: 'Шаблон детали 1',
-    elements: DEFAULT_TEMPLATE_ELEMENTS
-  }
-];
-
-const DETAILS: Detail[] = [
-  {
-    id: buildRandomId(),
-    name: 'Деталь 1',
-    type: 'Тип 1',
-    status: 'В разработке',
-    created: new Date('1995-12-17T03:24:00'),
-    addition: '-',
-    updated: new Date('1995-12-17T03:24:00'),
-    state: {
-      elements: [{name: 'Шаг 1', location: 'Цех 1', comments: []}, {name: 'Шаг 2'}, {name: 'Шаг 3'}, {name: 'Шаг 4'}, {name: 'Шаг 5'}],
-      progress: 0
-    }
-  },
-  {
-    id: buildRandomId(),
-    name: 'Деталь 2',
-    type: 'Тип 2',
-    status: 'В разработке',
-    created: new Date('1995-12-17T03:24:00'),
-    addition: '-',
-    updated: new Date('1995-12-17T03:24:00'),
-    state: {
-      elements: [
-        {name: 'Шаг 1', completedAt: new Date()},
-        {name: 'Шаг 2', completedAt: new Date()},
-        {name: 'Шаг 3', completedAt: new Date()},
-        {name: 'Шаг 4'},
-        {name: 'Шаг 5'}
-      ],
-      progress: 3
-    }
-  },
-  {
-    id: buildRandomId(),
-    name: 'Деталь 3',
-    type: 'Тип 3',
-    status: 'Готово',
-    created: new Date('1995-12-17T03:24:00'),
-    addition: '-',
-    updated: new Date('1995-12-17T03:24:00'),
-    state: {
-      elements: [
-        {name: 'Шаг 1', completedAt: new Date()},
-        {name: 'Шаг 2', completedAt: new Date()},
-        {name: 'Шаг 3', completedAt: new Date()},
-        {name: 'Шаг 4', completedAt: new Date()},
-        {name: 'Шаг 5', completedAt: new Date()}
-      ],
-      progress: 5
-    }
-  }
-];
-
-const PRODUCTS: Product[] = [
-  {
-    name: 'Изделие 1',
-    created: new Date(),
-    updated: new Date(),
-    detailIds: DETAILS.map((v) => v.id)
-  }
-];
-
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -134,7 +23,16 @@ const PRODUCTS: Product[] = [
 })
 export class AppComponent {
 
-  constructor(private modalService: NgbModal) {}
+  constructor(
+    private modalService: NgbModal,
+    private backendService: BackendService
+  ) {
+
+    this.templates = this.backendService.getTemplates();
+    this.products = this.backendService.getProducts();
+    this.details = this.backendService.getDetails();
+    this.detailsSize = Array.of(this.details.values()).length;
+  }
 
   get pagedDetails(): Detail[] {
     return Array.from(this.details.values())
@@ -145,26 +43,22 @@ export class AppComponent {
     return Array.from(this.details.values());
   }
 
-  details: Map<string, Detail> = Object.assign([], DETAILS).map((detail, i) => ({id: (i + 1).toString(), ...detail}))
-    .reduce((agg: Map<string, Detail>, cv: Detail, ci) => agg.set(cv.id, cv), new Map<string, Detail>());
-
-  detailsSize = DETAILS.length;
+  details: Map<string, Detail>;
+  detailsSize: number;
   detailSearch = '';
 
   activeDetail: Detail;
   activeTemplate: DetailTemplate;
   activeTemplateJson: string;
 
-  // detailTypes = Array.from(this.details.values()).map(a => a.type );
-
   page = 1;
   pageSize = 50;
 
-  templates = Object.assign([], TEMPLATES);
-  products: Product[] = Object.assign([], PRODUCTS);
+  templates: DetailTemplate[];
+  products: Product[];
   productSearch = '';
 
-  newDatailEntry: Detail;
+  newDetailEntry: Detail;
   newProductEntry: Product;
   newDetailTemplateJson: string;
   newTemplate: DetailTemplate;
@@ -211,7 +105,7 @@ export class AppComponent {
   }
 
   newDetailDialog(product: Product, content) {
-    this.newDatailEntry = {
+    this.newDetailEntry = {
       state: {progress: 0, elements: []},
       name: '',
       status: 'В разработке',
@@ -222,11 +116,11 @@ export class AppComponent {
     this.newDetailTemplateJson = '';
     this.modalService.open(content, {windowClass : 'myCustomModalClass', size: 'lg', ariaLabelledBy: 'modal-basic-title'})
       .result.then((result) => {
-        this.newDatailEntry.created = new Date();
-        this.newDatailEntry.updated = new Date();
-        this.newDatailEntry.state.elements = JSON.parse(this.newDetailTemplateJson);
-        output(this.newDatailEntry);
-        this.addDetail(product, this.newDatailEntry);
+        this.newDetailEntry.created = new Date();
+        this.newDetailEntry.updated = new Date();
+        this.newDetailEntry.state.elements = JSON.parse(this.newDetailTemplateJson);
+        output(this.newDetailEntry);
+        this.addDetail(product, this.newDetailEntry);
       }, (reason) => { output('rejected'); });
   }
 
