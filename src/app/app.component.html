@@ -16,7 +16,7 @@
             <div class="float-left">
               <input type="text" class="form-control" placeholder="Фильтр" [(ngModel)]="productSearch" />
             </div>
-            <button type="button" class="btn btn-outline-success float-right" (click)="newProduct(contentNewProduct)">Новое изделие</button>
+            <button type="button" class="btn btn-outline-success float-right" (click)="newProductDialog(contentNewProduct)">Новое изделие</button>
           </div>
         </div>
 
@@ -27,7 +27,7 @@
                   <ngb-tab title="Документация по изделию">
                     <ng-template ngbTabContent>
                       <p>Ссылки на документацию</p>
-                      <button type="button" class="btn btn-outline-success" (click)="newDetail(product, content)">Новая деталь</button>
+                      <button type="button" class="btn btn-outline-success" (click)="newDetailDialog(product, content)">Новая деталь</button>
                     </ng-template>
                   </ngb-tab>
                   <ngb-tab>
@@ -184,15 +184,16 @@
                 <button *ngFor="let template of templates" (click)="changeActiveTemplate(template)" ngbDropdownItem>{{template.name}}</button>
               </div>
             </div>
+            <button type="button" class="btn btn-outline-success ml-2" (click)="newTemplateDialog(contentNewTemplate)">Новый шаблон</button>
           </div>
 
           <div class="col mt-2" *ngIf="activeTemplate" >
             <h2>{{activeTemplate.name}}</h2>
             <div>
-              <textarea class="form-control rounded-0" rows="20">{{templateJson()}}</textarea>
+              <textarea class="form-control rounded-0" rows="20" [(ngModel)]="activeTemplateJson"></textarea>
             </div>
-            <div>
-              <button type="button" class="btn mt-2 btn-success">Сохранить шаблон</button>
+            <div class="mt-2">
+              <button type="button" class="btn btn-success mr-2" (click)="updateActiveTemplate()">Сохранить шаблон</button>
             </div>
           </div>
 
@@ -223,11 +224,11 @@
       <div ngbDropdown class="d-inline-block">
         <button class="btn btn-outline-primary" id="dropdownBasic3" ngbDropdownToggle>Выбор шаблона детали</button>
         <div ngbDropdownMenu aria-labelledby="dropdownBasic3">
-          <button *ngFor="let template of templates" (click)="changeActiveTemplate(template)" ngbDropdownItem>{{template.name}}</button>
+          <button *ngFor="let template of templates" (click)="changeNewDetailTemplate(template)" ngbDropdownItem>{{template.name}}</button>
         </div>
       </div>
-      <div class="col mt-2" *ngIf="activeTemplate">
-        <textarea class="form-control rounded-0" rows="10">{{templateJson()}}</textarea>
+      <div class="col mt-2" *ngIf="newDetailTemplateJson">
+        <textarea name="newDetailTemplate" class="form-control rounded-0" rows="10" [(ngModel)]="newDetailTemplateJson"></textarea>
       </div>
     </form>
   </div>
@@ -256,5 +257,23 @@
   </div>
 </ng-template>
 
+<ng-template #contentNewTemplate let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title">Новый шаблон</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <form>
+      <div class="form-group">
+        <input type="text" class="form-control" id="newTemplateName" name="newTemplateName" placeholder="Название" [(ngModel)]="newTemplate.name">
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-dark" (click)="modal.close()">Создать</button>
+  </div>
+</ng-template>
 
 <router-outlet></router-outlet>

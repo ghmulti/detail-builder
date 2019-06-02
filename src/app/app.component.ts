@@ -1,7 +1,13 @@
 import { Component } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { v4 as uuid } from 'uuid';
 
 const output = console.log;
+
+function buildRandomId(): string {
+  // return Math.random().toString(36).substring(7);
+  return uuid();
+}
 
 interface ElementInfo {
   name: string;
@@ -40,31 +46,27 @@ export interface Product {
   updated?: Date;
 }
 
+const DEFAULT_TEMPLATE_ELEMENTS: ElementInfo[] = [
+  {
+    name: 'Шаг 1',
+    location: 'Цех 1',
+    comments: []
+  },
+  {
+    name: 'Шаг 2'
+  }
+];
+
 const TEMPLATES: DetailTemplate[] = [
   {
     name: 'Шаблон детали 1',
-    elements: [
-      {
-        name: 'Шаг 1',
-        location: 'Цех 1',
-        comments: []
-      },
-      {
-        name: 'Шаг 2'
-      },
-      {
-        name: 'Шаг 3'
-      },
-      {
-        name: 'Шаг 4'
-      }
-    ]
+    elements: DEFAULT_TEMPLATE_ELEMENTS
   }
 ];
 
 const DETAILS: Detail[] = [
   {
-    id: Math.random().toString(36).substring(7),
+    id: buildRandomId(),
     name: 'Деталь 1',
     type: 'Тип 1',
     status: 'В разработке',
@@ -77,7 +79,7 @@ const DETAILS: Detail[] = [
     }
   },
   {
-    id: Math.random().toString(36).substring(7),
+    id: buildRandomId(),
     name: 'Деталь 2',
     type: 'Тип 2',
     status: 'В разработке',
@@ -96,7 +98,7 @@ const DETAILS: Detail[] = [
     }
   },
   {
-    id: Math.random().toString(36).substring(7),
+    id: buildRandomId(),
     name: 'Деталь 3',
     type: 'Тип 3',
     status: 'Готово',
@@ -151,6 +153,7 @@ export class AppComponent {
 
   activeDetail: Detail;
   activeTemplate: DetailTemplate;
+  activeTemplateJson: string;
 
   // detailTypes = Array.from(this.details.values()).map(a => a.type );
 
@@ -163,6 +166,8 @@ export class AppComponent {
 
   newDatailEntry: Detail;
   newProductEntry: Product;
+  newDetailTemplateJson: string;
+  newTemplate: DetailTemplate;
 
   changeActiveDetail(detail: Detail) {
     this.activeDetail = detail;
@@ -184,14 +189,15 @@ export class AppComponent {
 
   changeActiveTemplate(template: DetailTemplate) {
     this.activeTemplate = template;
+    this.activeTemplateJson = JSON.stringify(this.activeTemplate.elements, undefined, 2);
   }
 
-  templateJson(): string {
-    return JSON.stringify(this.activeTemplate.elements, undefined, 2);
+  updateActiveTemplate() {
+    this.activeTemplate.elements = JSON.parse(this.activeTemplateJson);
   }
 
   addDetail(product: Product, detail: Detail) {
-    this.details.set(this.newDatailEntry.id, this.newDatailEntry);
+    this.details.set(detail.id, detail);
     this.detailsSize++;
     product.detailIds.push(detail.id);
   }
@@ -200,30 +206,39 @@ export class AppComponent {
     this.products.push(product);
   }
 
-  newDetail(product: Product, content) {
+  addTemplate(template: DetailTemplate) {
+    this.templates.push(template);
+  }
+
+  newDetailDialog(product: Product, content) {
     this.newDatailEntry = {
       state: {progress: 0, elements: []},
       name: '',
       status: 'В разработке',
       addition: '',
       type: '',
-      id : Math.random().toString(36).substring(7)
+      id : buildRandomId()
     };
+    this.newDetailTemplateJson = '';
     this.modalService.open(content, {windowClass : 'myCustomModalClass', size: 'lg', ariaLabelledBy: 'modal-basic-title'})
       .result.then((result) => {
         this.newDatailEntry.created = new Date();
         this.newDatailEntry.updated = new Date();
-        this.newDatailEntry.state.elements = Object.assign([], this.activeTemplate.elements);
+        this.newDatailEntry.state.elements = JSON.parse(this.newDetailTemplateJson);
         output(this.newDatailEntry);
         this.addDetail(product, this.newDatailEntry);
       }, (reason) => { output('rejected'); });
   }
 
-  newProduct(content) {
+  changeNewDetailTemplate(template: DetailTemplate) {
+    this.newDetailTemplateJson = JSON.stringify(template.elements, undefined, 2);
+  }
+
+  newProductDialog(content) {
     this.newProductEntry = {
       name: '',
       detailIds: [],
-      id : Math.random().toString(36).substring(7)
+      id : buildRandomId()
     };
     this.modalService.open(content, {windowClass : 'myCustomModalClass', size: 'lg', ariaLabelledBy: 'modal-basic-title'})
       .result.then((result) => {
@@ -231,6 +246,17 @@ export class AppComponent {
       this.newProductEntry.updated = new Date();
       output(this.newProductEntry);
       this.addProduct(this.newProductEntry);
+    }, (reason) => { output('rejected'); });
+  }
+
+  newTemplateDialog(content) {
+    this.newTemplate = {
+      elements: Object.assign([], DEFAULT_TEMPLATE_ELEMENTS),
+      name: ''
+    };
+    this.modalService.open(content, {ariaLabelledBy: 'modal-basic-title'})
+      .result.then((result) => {
+      this.addTemplate(this.newTemplate);
     }, (reason) => { output('rejected'); });
   }
 }
