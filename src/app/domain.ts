@@ -19,6 +19,7 @@ export interface DetailState {
 }
 
 export interface DetailTemplate {
+  id: string;
   name: string;
   elements: ElementInfo[];
 }
@@ -35,7 +36,7 @@ export interface Detail {
 }
 
 export interface Product {
-  id?: string;
+  id: string;
   name: string;
   detailIds: string[];
   created?: Date;

@@ -1,108 +1,47 @@
-import {Detail, Product, DetailTemplate, ElementInfo, buildRandomId} from './domain';
-
-const DETAILS: Detail[] = [
-  {
-    id: buildRandomId(),
-    name: 'Деталь 1',
-    type: 'Тип 1',
-    status: 'В разработке',
-    created: new Date('1995-12-17T03:24:00'),
-    addition: '-',
-    updated: new Date('1995-12-17T03:24:00'),
-    state: {
-      elements: [{name: 'Шаг 1', location: 'Цех 1', comments: []}, {name: 'Шаг 2'}, {name: 'Шаг 3'}, {name: 'Шаг 4'}, {name: 'Шаг 5'}],
-      progress: 0
-    }
-  },
-  {
-    id: buildRandomId(),
-    name: 'Деталь 2',
-    type: 'Тип 2',
-    status: 'В разработке',
-    created: new Date('1995-12-17T03:24:00'),
-    addition: '-',
-    updated: new Date('1995-12-17T03:24:00'),
-    state: {
-      elements: [
-        {name: 'Шаг 1', completedAt: new Date()},
-        {name: 'Шаг 2', completedAt: new Date()},
-        {name: 'Шаг 3', completedAt: new Date()},
-        {name: 'Шаг 4'},
-        {name: 'Шаг 5'}
-      ],
-      progress: 3
-    }
-  },
-  {
-    id: buildRandomId(),
-    name: 'Деталь 3',
-    type: 'Тип 3',
-    status: 'Готово',
-    created: new Date('1995-12-17T03:24:00'),
-    addition: '-',
-    updated: new Date('1995-12-17T03:24:00'),
-    state: {
-      elements: [
-        {name: 'Шаг 1', completedAt: new Date()},
-        {name: 'Шаг 2', completedAt: new Date()},
-        {name: 'Шаг 3', completedAt: new Date()},
-        {name: 'Шаг 4', completedAt: new Date()},
-        {name: 'Шаг 5', completedAt: new Date()}
-      ],
-      progress: 5
-    }
-  }
-];
-
-const PRODUCTS: Product[] = [
-  {
-    name: 'Изделие 1',
-    created: new Date(),
-    updated: new Date(),
-    detailIds: DETAILS.map((v) => v.id)
-  }
-];
-
-const DEFAULT_TEMPLATE_ELEMENTS: ElementInfo[] = [
-  {
-    name: 'Шаг 1',
-    location: 'Цех 1',
-    comments: []
-  },
-  {
-    name: 'Шаг 2'
-  }
-];
-
-const TEMPLATES: DetailTemplate[] = [
-  {
-    name: 'Шаблон детали 1',
-    elements: DEFAULT_TEMPLATE_ELEMENTS
-  }
-];
+import {Detail, DetailTemplate, ElementInfo, Product} from './domain';
+import {BehaviorSubject} from 'rxjs';
 
 export class BackendService {
 
-  getProducts(): Product[] {
-    return Object.assign([], PRODUCTS);
+  details = new BehaviorSubject<Map<string, Detail>>(new Map<string, Detail>());
+  products = new BehaviorSubject<Map<string, Product>>(new Map<string, Product>());
+  templates = new BehaviorSubject<Map<string, DetailTemplate>>(new Map<string, DetailTemplate>());
+
+  constructor() {
+    const productsJson = localStorage.getItem(`products`);
+    const prods = productsJson != null ? new Map<string, Product>(JSON.parse(productsJson)) : new Map<string, Product>();
+    this.products.next(prods);
+
+    const detailsJson = localStorage.getItem(`details`);
+    const dets = detailsJson != null ? new Map<string, Detail>(JSON.parse(detailsJson)) : new Map<string, Detail>();
+    this.details.next(dets);
+
+    const templatesJson = localStorage.getItem(`templates`);
+    const temps = templatesJson != null ? new Map<string, DetailTemplate>(JSON.parse(templatesJson)) : new Map<string, DetailTemplate>();
+    this.templates.next(temps);
   }
 
-  getDetails(): Map<string, Detail> {
-    return Object.assign([], DETAILS).map((detail, i) => ({id: (i + 1).toString(), ...detail}))
-      .reduce((agg: Map<string, Detail>, cv: Detail, ci) => agg.set(cv.id, cv), new Map<string, Detail>());
-  }
+  get products$() { return this.products.asObservable(); }
+  get details$() { return this.details.asObservable(); }
+  get templates$() { return this.templates.asObservable(); }
 
-  getTemplates(): DetailTemplate[] {
-    return Object.assign([], TEMPLATES);
-  }
 
   saveOrUpdateProduct(product: Product) {
+    const newMap = this.products.getValue().set(product.id, product);
+    localStorage.setItem('products', JSON.stringify(Array.from(newMap.entries())));
+    this.products.next(newMap);
   }
 
   saveOrUpdateDetail(detail: Detail) {
+    const newMap = this.details.getValue().set(detail.id, detail);
+    this.details.next(newMap);
+    localStorage.setItem(`details`, JSON.stringify(Array.from(newMap.entries())));
   }
 
   saveOrUpdateTemplate(template: DetailTemplate) {
+    const newMap = this.templates.getValue().set(template.id, template);
+    this.templates.next(newMap);
+    localStorage.setItem(`templates`, JSON.stringify(Array.from(newMap.entries())));
   }
 
 }

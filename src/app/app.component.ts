@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {BackendService} from './backend.service';
-import {Detail, Product, DetailTemplate, ElementInfo, buildRandomId} from './domain';
+import {buildRandomId, Detail, DetailTemplate, ElementInfo, Product} from './domain';
+import {Subscription} from 'rxjs';
 
 const output = console.log;
 
@@ -21,18 +22,7 @@ const DEFAULT_TEMPLATE_ELEMENTS: ElementInfo[] = [
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent {
-
-  constructor(
-    private modalService: NgbModal,
-    private backendService: BackendService
-  ) {
-
-    this.templates = this.backendService.getTemplates();
-    this.products = this.backendService.getProducts();
-    this.details = this.backendService.getDetails();
-    this.detailsSize = Array.of(this.details.values()).length;
-  }
+export class AppComponent implements OnInit, OnDestroy {
 
   get pagedDetails(): Detail[] {
     return Array.from(this.details.values())
@@ -63,6 +53,35 @@ export class AppComponent {
   newDetailTemplateJson: string;
   newTemplate: DetailTemplate;
 
+  detailSubscription: Subscription;
+  productSubscription: Subscription;
+  templateSubscription: Subscription;
+
+  constructor(
+    private modalService: NgbModal,
+    private backendService: BackendService
+  ) {
+  }
+
+  ngOnInit() {
+    this.productSubscription = this.backendService.products$.subscribe((x) => {
+      this.products = Array.from(x.values());
+    });
+    this.templateSubscription = this.backendService.templates$.subscribe((v) => {
+      this.templates = Array.from(v.values());
+    });
+    this.detailSubscription = this.backendService.details$.subscribe((v) => {
+      this.details = v;
+      this.detailsSize = Array.from(v.values()).length;
+    });
+  }
+
+  ngOnDestroy() {
+    this.productSubscription.unsubscribe();
+    this.detailSubscription.unsubscribe();
+    this.templateSubscription.unsubscribe();
+  }
+
   changeActiveDetail(detail: Detail) {
     this.activeDetail = detail;
   }
@@ -79,6 +98,7 @@ export class AppComponent {
     if (this.activeDetail.state.progress === this.activeDetail.state.elements.length) {
       this.activeDetail.status = 'Готово';
     }
+    this.backendService.saveOrUpdateDetail(this.activeDetail);
   }
 
   changeActiveTemplate(template: DetailTemplate) {
@@ -91,17 +111,17 @@ export class AppComponent {
   }
 
   addDetail(product: Product, detail: Detail) {
-    this.details.set(detail.id, detail);
-    this.detailsSize++;
+    this.backendService.saveOrUpdateDetail(detail);
     product.detailIds.push(detail.id);
+    this.backendService.saveOrUpdateProduct(product);
   }
 
   addProduct(product: Product) {
-    this.products.push(product);
+    this.backendService.saveOrUpdateProduct(product);
   }
 
   addTemplate(template: DetailTemplate) {
-    this.templates.push(template);
+    this.backendService.saveOrUpdateTemplate(template);
   }
 
   newDetailDialog(product: Product, content) {
@@ -145,6 +165,7 @@ export class AppComponent {
 
   newTemplateDialog(content) {
     this.newTemplate = {
+      id: buildRandomId(),
       elements: Object.assign([], DEFAULT_TEMPLATE_ELEMENTS),
       name: ''
     };
