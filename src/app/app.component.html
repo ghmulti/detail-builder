@@ -5,9 +5,10 @@
   </h2>
 </div>
 
-<div style="text-align: center" *ngIf="idToken">
+<div style="text-align: center" class="m-4" *ngIf="idToken">
   <button type="button" class="btn btn-outline-success ml-2" (click)="exportData()">Экспорт в облако</button>
   <button type="button" class="btn btn-outline-success ml-2" (click)="importData()">Импорт из облака</button>
+  <button type="button" class="btn btn-danger float-right" (click)="cleanupData()">Очистить кэш</button>
 </div>
 
 <div class="m-4" *ngIf="alerts.length > 0">
@@ -35,7 +36,8 @@
           <ngb-panel *ngFor="let product of products | searchProd:'id,name':productSearch" title="{{product.name}}">
             <ng-template ngbPanelContent>
                 <div>
-                  <button type="button" class="btn btn-outline-success" (click)="newDetailDialog(product, content)">Новая деталь</button>
+                  <button type="button" class="btn btn-outline-success mr-2" (click)="newDetailDialog(product, content)">Новая деталь</button>
+                  <button type="button" class="btn btn-danger float-right" (click)="deleteProduct(product)">Удалить изделие</button>
                 </div>
 <!--                <ngb-tabset type="pills">-->
 <!--                  <ngb-tab title="Документация по изделию">-->
@@ -142,6 +144,7 @@
                 <button *ngFor="let detail of allDetails" (click)="changeActiveDetail(detail)" ngbDropdownItem>{{detail.name}}</button>
               </div>
             </div>
+            <button type="button" class="btn btn-danger float-right" (click)="deleteActiveDetail()" *ngIf="activeDetail">Удалить деталь</button>
           </div>
 
           <div class="col mt-2" *ngIf="activeDetail" >
@@ -199,6 +202,7 @@
               </div>
             </div>
             <button type="button" class="btn btn-outline-success ml-2" (click)="newTemplateDialog(contentNewTemplate)">Новый шаблон</button>
+            <button type="button" class="btn btn-danger float-right" (click)="deleteActiveTemplate()" *ngIf="activeTemplate">Удалить шаблон</button>
           </div>
 
           <div class="col mt-2" *ngIf="activeTemplate" >
@@ -247,7 +251,7 @@
     </form>
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-outline-dark" (click)="modal.close()">Создать</button>
+    <button type="button" class="btn btn-outline-dark" [disabled]="newDetailTemplateJson.trim().length == 0" (click)="modal.close()">Создать</button>
   </div>
 </ng-template>
 

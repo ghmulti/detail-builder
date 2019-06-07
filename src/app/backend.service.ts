@@ -71,5 +71,27 @@ export class BackendService {
     localStorage.setItem(`templates`, JSON.stringify(so.templates));
     localStorage.setItem(`details`, JSON.stringify(so.details));
     localStorage.setItem(`products`, JSON.stringify(so.products));
+    location.reload();
+  }
+
+  deletePorduct(productId: string) {
+    this.products.getValue().delete(productId);
+    const newMap = this.products.getValue();
+    localStorage.setItem('products', JSON.stringify(Array.from(newMap.entries())));
+    this.products.next(newMap);
+  }
+
+  deleteTemplate(templateId: string) {
+    this.templates.getValue().delete(templateId);
+    const newMap = this.templates.getValue();
+    localStorage.setItem('templates', JSON.stringify(Array.from(newMap.entries())));
+    this.templates.next(newMap);
+  }
+
+  deleteDetail(detailId: string) {
+    this.details.getValue().delete(detailId);
+    const newMap = this.details.getValue();
+    localStorage.setItem('details', JSON.stringify(Array.from(newMap.entries())));
+    this.details.next(newMap);
   }
 }

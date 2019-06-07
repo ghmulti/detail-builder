@@ -135,6 +135,41 @@ export class AppComponent implements OnInit, OnDestroy {
     this.backendService.saveOrUpdateTemplate(template);
   }
 
+  deleteProduct(product: Product) {
+    if (product.detailIds.length > 0) {
+      product.detailIds.forEach((detailId) => { this.backendService.deleteDetail(detailId); });
+      if (this.activeDetail != null && product.detailIds.indexOf(this.activeDetail.id) >= 0) {
+        this.activeDetail = null;
+        this.activeTemplateJson = '';
+      }
+    }
+    this.backendService.deletePorduct(product.id);
+  }
+
+  deleteActiveDetail() {
+    if (this.activeDetail == null) {
+      return;
+    }
+    if (this.activeDetail.productId != null) {
+      const targetProduct = this.products.find((prod: Product) => prod.id === this.activeDetail.productId);
+      if (targetProduct != null) {
+        targetProduct.detailIds.splice(targetProduct.detailIds.indexOf(this.activeDetail.productId), 1);
+        this.backendService.saveOrUpdateProduct(targetProduct);
+      }
+    }
+    this.backendService.deleteDetail(this.activeDetail.id);
+    this.activeDetail = null;
+  }
+
+  deleteActiveTemplate() {
+    if (this.activeTemplate == null) {
+      return;
+    }
+    this.backendService.deleteTemplate(this.activeTemplate.id);
+    this.activeTemplate = null;
+    this.activeTemplateJson = '';
+  }
+
   newDetailDialog(product: Product, content) {
     this.newDetailEntry = {
       state: {progress: 0, elements: []},
@@ -142,7 +177,8 @@ export class AppComponent implements OnInit, OnDestroy {
       status: 'В разработке',
       addition: '',
       type: '',
-      id : buildRandomId()
+      id : buildRandomId(),
+      productId: product.id,
     };
     this.newDetailTemplateJson = '';
     this.modalService.open(content, {windowClass : 'myCustomModalClass', size: 'lg', ariaLabelledBy: 'modal-basic-title'})
@@ -209,13 +245,25 @@ export class AppComponent implements OnInit, OnDestroy {
         message: `Успешно импортировано`
       });
       this.backendService.saveOrUpdateSyncObject(x);
-      location.reload();
     }, (err: Error) => {
       output(`Error ${err.message}`);
       this.alerts.push({
         type: 'danger',
         message: `Ошибка при импорте: ${err.message}`
       });
+    });
+  }
+
+  cleanupData() {
+    const defaultTemplateId = buildRandomId();
+    this.backendService.saveOrUpdateSyncObject({
+      details: [],
+      products: [],
+      templates: [[defaultTemplateId, {
+        id: defaultTemplateId,
+        elements: Object.assign([], DEFAULT_TEMPLATE_ELEMENTS),
+        name: 'Дефолтный шаблон'
+      }]]
     });
   }
 

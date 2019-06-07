@@ -44,6 +44,7 @@ export interface Detail {
   updated?: Date;
   addition: string;
   state: DetailState;
+  productId?: string;
 }
 
 export interface Product {
