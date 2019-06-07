@@ -4,6 +4,7 @@ import {BackendService} from './backend.service';
 import {buildRandomId, Detail, DetailTemplate, ElementInfo, Product} from './domain';
 import {Subscription} from 'rxjs';
 import {ActivatedRoute} from '@angular/router';
+import {map} from 'rxjs/operators';
 
 const output = console.log;
 
@@ -66,8 +67,9 @@ export class AppComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute
   ) {
     this.route.queryParams.subscribe(params => {
-      this.idToken = params.id_token;
-      output(`Token: ${this.idToken}`);
+      this.route.fragment.pipe(
+        map(fragment => new URLSearchParams(fragment).get('id_token'))
+      ).subscribe(res => { console.log('Got token: ' + res); this.idToken = res; });
     });
   }
 
