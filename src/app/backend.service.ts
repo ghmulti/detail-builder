@@ -1,4 +1,4 @@
-import {Detail, DetailTemplate, ElementInfo, Product} from './domain';
+import {Detail, DetailTemplate, ElementInfo, Product, SyncObj} from './domain';
 import {BehaviorSubject} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {Injectable} from '@angular/core';
@@ -67,7 +67,7 @@ export class BackendService {
 
   importData(idToken: string) {
     this.http.get('https://hfofod4c8d.execute-api.eu-west-1.amazonaws.com/dev/sync', {headers: { Authorization: idToken }})
-      .subscribe(resp => {
+      .subscribe((resp: SyncObj) => {
         console.log('Response', resp);
         localStorage.setItem(`templates`, JSON.stringify(resp.templates));
         localStorage.setItem(`details`, JSON.stringify(resp.details));

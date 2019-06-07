@@ -5,6 +5,12 @@ export function buildRandomId(): string {
   return uuid();
 }
 
+export interface SyncObj {
+  templates: any;
+  products: any;
+  details: any;
+}
+
 export interface ElementInfo {
   name: string;
   location?: string;
