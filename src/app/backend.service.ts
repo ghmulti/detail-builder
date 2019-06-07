@@ -1,13 +1,18 @@
 import {Detail, DetailTemplate, ElementInfo, Product} from './domain';
 import {BehaviorSubject} from 'rxjs';
+import {HttpClient} from '@angular/common/http';
+import {Injectable} from '@angular/core';
 
+@Injectable()
 export class BackendService {
 
   details = new BehaviorSubject<Map<string, Detail>>(new Map<string, Detail>());
   products = new BehaviorSubject<Map<string, Product>>(new Map<string, Product>());
   templates = new BehaviorSubject<Map<string, DetailTemplate>>(new Map<string, DetailTemplate>());
 
-  constructor() {
+  constructor(
+    private http: HttpClient
+  ) {
     const productsJson = localStorage.getItem(`products`);
     const prods = productsJson != null ? new Map<string, Product>(JSON.parse(productsJson)) : new Map<string, Product>();
     this.products.next(prods);
@@ -42,6 +47,35 @@ export class BackendService {
     const newMap = this.templates.getValue().set(template.id, template);
     this.templates.next(newMap);
     localStorage.setItem(`templates`, JSON.stringify(Array.from(newMap.entries())));
+  }
+
+  exportData(idToken: string) {
+    const body = JSON.stringify(
+      {
+        templates: Array.from(this.templates.getValue().entries()),
+        products: Array.from(this.products.getValue().entries()),
+        details: Array.from(this.details.getValue().entries())
+      }
+    );
+    this.http.post('https://hfofod4c8d.execute-api.eu-west-1.amazonaws.com/dev/sync', body , {headers: { Authorization: idToken }})
+      .subscribe(resp => {
+        console.log('Response', resp);
+      }, err => {
+        console.log('Unable to export', err);
+      });
+  }
+
+  importData(idToken: string) {
+    this.http.get('https://hfofod4c8d.execute-api.eu-west-1.amazonaws.com/dev/sync', {headers: { Authorization: idToken }})
+      .subscribe(resp => {
+        console.log('Response', resp);
+        localStorage.setItem(`templates`, JSON.stringify(resp.templates));
+        localStorage.setItem(`details`, JSON.stringify(resp.details));
+        localStorage.setItem(`products`, JSON.stringify(resp.products));
+        location.reload();
+      }, err => {
+        console.log('Unable to import', err);
+      });
   }
 
 }

@@ -7,6 +7,7 @@ import { AppComponent } from './app.component';
 import {FormsModule} from '@angular/forms';
 import {SearchDetailPipe, SearchProductPipe} from './search-pipe';
 import {BackendService} from './backend.service';
+import {HttpClientModule} from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,8 @@ import {BackendService} from './backend.service';
     BrowserModule,
     AppRoutingModule,
     NgbModule,
-    FormsModule
+    FormsModule,
+    HttpClientModule,
   ],
   providers: [BackendService],
   bootstrap: [AppComponent]

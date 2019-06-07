@@ -5,6 +5,11 @@
   </h2>
 </div>
 
+<div style="text-align: center" *ngIf="idToken">
+  <button type="button" class="btn btn-outline-success ml-2" (click)="exportData()">Экспорт в облако</button>
+  <button type="button" class="btn btn-outline-success ml-2" (click)="importData()">Импорт из облака</button>
+</div>
+
 <div class="m-4">
   <ngb-tabset #t="ngbTabset">
     <ngb-tab>
@@ -23,26 +28,28 @@
         <ngb-accordion #acc="ngbAccordion">  <!-- activeIds="ngb-panel-0"-->
           <ngb-panel *ngFor="let product of products | searchProd:'id,name':productSearch" title="{{product.name}}">
             <ng-template ngbPanelContent>
-                <ngb-tabset type="pills">
-                  <ngb-tab title="Документация по изделию">
-                    <ng-template ngbTabContent>
-                      <p>Ссылки на документацию</p>
-                      <button type="button" class="btn btn-outline-success" (click)="newDetailDialog(product, content)">Новая деталь</button>
-                    </ng-template>
-                  </ngb-tab>
-                  <ngb-tab>
-                    <ng-template ngbTabTitle>Описание</ng-template>
-                    <ng-template ngbTabContent>
-                      <p>Краткое описание</p>
-                    </ng-template>
-                  </ngb-tab>
-                  <ngb-tab>
-                    <ng-template ngbTabTitle>Сроки</ng-template>
-                    <ng-template ngbTabContent>
-                      <p>Информация по срокам</p>
-                    </ng-template>
-                  </ngb-tab>
-                </ngb-tabset>
+                <div>
+                  <button type="button" class="btn btn-outline-success" (click)="newDetailDialog(product, content)">Новая деталь</button>
+                </div>
+<!--                <ngb-tabset type="pills">-->
+<!--                  <ngb-tab title="Документация по изделию">-->
+<!--                    <ng-template ngbTabContent>-->
+<!--                      <p>Ссылки на документацию</p>-->
+<!--                    </ng-template>-->
+<!--                  </ngb-tab>-->
+<!--                  <ngb-tab>-->
+<!--                    <ng-template ngbTabTitle>Описание</ng-template>-->
+<!--                    <ng-template ngbTabContent>-->
+<!--                      <p>Краткое описание</p>-->
+<!--                    </ng-template>-->
+<!--                  </ngb-tab>-->
+<!--                  <ngb-tab>-->
+<!--                    <ng-template ngbTabTitle>Сроки</ng-template>-->
+<!--                    <ng-template ngbTabContent>-->
+<!--                      <p>Информация по срокам</p>-->
+<!--                    </ng-template>-->
+<!--                  </ngb-tab>-->
+<!--                </ngb-tabset>-->
                 <div class="mt-2">
                   <p *ngFor="let detailId of product.detailIds">
                     <label class="pointer font-weight-bold" (click)="changeActiveDetail(details.get(detailId)); t.select('tab-detail-status')">{{details.get(detailId).name}}</label>
@@ -137,7 +144,8 @@
             <p><b>Тип</b>: {{activeDetail.type}}</p>
             <div>
               <label for="detail-addition" class="d-block font-weight-bold">Примечание:</label>
-              <textarea class="form-control rounded-0" rows="4" id="detail-addition" [(ngModel)]="activeDetail.addition"></textarea>
+              <div id="detail-addition">{{activeDetail.addition}}</div>
+<!--              <textarea class="form-control rounded-0" rows="4" id="detail-addition" [(ngModel)]="activeDetail.addition"></textarea>-->
             </div>
             <table class="table table-striped">
               <thead>
@@ -166,10 +174,10 @@
     <ngb-tab>
       <ng-template ngbTabTitle><b>Документы</b></ng-template>
       <ng-template ngbTabContent>
-        <div class="m-1">
-          <p>Ссылка на документ 1</p>
-          <p>Ссылка на документ 2</p>
-        </div>
+<!--        <div class="m-1">-->
+<!--          <p>Ссылка на документ 1</p>-->
+<!--          <p>Ссылка на документ 2</p>-->
+<!--        </div>-->
       </ng-template>
     </ngb-tab>
     <ngb-tab>

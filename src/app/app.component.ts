@@ -182,4 +182,12 @@ export class AppComponent implements OnInit, OnDestroy {
       this.addTemplate(this.newTemplate);
     }, (reason) => { output('rejected'); });
   }
+
+  exportData() {
+    this.backendService.exportData(this.idToken);
+  }
+
+  importData() {
+    this.backendService.importData(this.idToken);
+  }
 }
