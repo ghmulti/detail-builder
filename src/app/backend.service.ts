@@ -1,5 +1,5 @@
 import {Detail, DetailTemplate, ElementInfo, Product, SyncObj} from './domain';
-import {BehaviorSubject} from 'rxjs';
+import {BehaviorSubject, Observable} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {Injectable} from '@angular/core';
 
@@ -57,25 +57,19 @@ export class BackendService {
         details: Array.from(this.details.getValue().entries())
       }
     );
-    this.http.post('https://hfofod4c8d.execute-api.eu-west-1.amazonaws.com/dev/sync', body , {headers: { Authorization: idToken }})
-      .subscribe(resp => {
-        console.log('Response', resp);
-      }, err => {
-        console.log('Unable to export', err);
-      });
+    return this.http.post('https://hfofod4c8d.execute-api.eu-west-1.amazonaws.com/dev/sync', body , {headers: { Authorization: idToken }})
+      .toPromise();
   }
 
   importData(idToken: string) {
-    this.http.get('https://hfofod4c8d.execute-api.eu-west-1.amazonaws.com/dev/sync', {headers: { Authorization: idToken }})
-      .subscribe((resp: SyncObj) => {
-        console.log('Response', resp);
-        localStorage.setItem(`templates`, JSON.stringify(resp.templates));
-        localStorage.setItem(`details`, JSON.stringify(resp.details));
-        localStorage.setItem(`products`, JSON.stringify(resp.products));
-        location.reload();
-      }, err => {
-        console.log('Unable to import', err);
-      });
+    return this.http
+      .get('https://hfofod4c8d.execute-api.eu-west-1.amazonaws.com/dev/sync', {headers: { Authorization: idToken }})
+      .toPromise();
   }
 
+  saveOrUpdateSyncObject(so: SyncObj) {
+    localStorage.setItem(`templates`, JSON.stringify(so.templates));
+    localStorage.setItem(`details`, JSON.stringify(so.details));
+    localStorage.setItem(`products`, JSON.stringify(so.products));
+  }
 }

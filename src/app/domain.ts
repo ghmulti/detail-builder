@@ -5,6 +5,11 @@ export function buildRandomId(): string {
   return uuid();
 }
 
+export interface Alert {
+  type: string;
+  message: string;
+}
+
 export interface SyncObj {
   templates: any;
   products: any;

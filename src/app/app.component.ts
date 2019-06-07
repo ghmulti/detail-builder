@@ -1,7 +1,7 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {BackendService} from './backend.service';
-import {buildRandomId, Detail, DetailTemplate, ElementInfo, Product} from './domain';
+import {buildRandomId, Detail, DetailTemplate, ElementInfo, Product, Alert, SyncObj} from './domain';
 import {Subscription} from 'rxjs';
 import {ActivatedRoute} from '@angular/router';
 import {map} from 'rxjs/operators';
@@ -60,6 +60,7 @@ export class AppComponent implements OnInit, OnDestroy {
   templateSubscription: Subscription;
 
   idToken: string;
+  alerts: Alert[] = [];
 
   constructor(
     private modalService: NgbModal,
@@ -186,10 +187,39 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   exportData() {
-    this.backendService.exportData(this.idToken);
+    this.backendService.exportData(this.idToken).then((x) => {
+      this.alerts.push({
+        type: 'success',
+        message: `Успешно экспортировано`
+      });
+    }, (err: Error) => {
+      output(`Error ${err.message}`);
+      this.alerts.push({
+        type: 'danger',
+        message: `Ошибка при экспорте: ${err.message}`
+      });
+    });
   }
 
   importData() {
-    this.backendService.importData(this.idToken);
+    this.backendService.importData(this.idToken).then((x: SyncObj) => {
+      output('Response: ', x);
+      this.alerts.push({
+        type: 'success',
+        message: `Успешно импортировано`
+      });
+      this.backendService.saveOrUpdateSyncObject(x);
+      location.reload();
+    }, (err: Error) => {
+      output(`Error ${err.message}`);
+      this.alerts.push({
+        type: 'danger',
+        message: `Ошибка при импорте: ${err.message}`
+      });
+    });
+  }
+
+  closeAlert(alert: Alert) {
+    this.alerts.splice(this.alerts.indexOf(alert), 1);
   }
 }
