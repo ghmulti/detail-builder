@@ -3,6 +3,7 @@ import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {BackendService} from './backend.service';
 import {buildRandomId, Detail, DetailTemplate, ElementInfo, Product} from './domain';
 import {Subscription} from 'rxjs';
+import {ActivatedRoute} from '@angular/router';
 
 const output = console.log;
 
@@ -57,10 +58,17 @@ export class AppComponent implements OnInit, OnDestroy {
   productSubscription: Subscription;
   templateSubscription: Subscription;
 
+  idToken: string;
+
   constructor(
     private modalService: NgbModal,
-    private backendService: BackendService
+    private backendService: BackendService,
+    private route: ActivatedRoute
   ) {
+    this.route.queryParams.subscribe(params => {
+      this.idToken = params.id_token;
+      output(`Token: ${this.idToken}`);
+    });
   }
 
   ngOnInit() {
