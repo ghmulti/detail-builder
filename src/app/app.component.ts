@@ -2,9 +2,10 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {BackendService} from './backend.service';
 import {buildRandomId, Detail, DetailTemplate, ElementInfo, Product, Alert, SyncObj} from './domain';
-import {Subscription} from 'rxjs';
+import {Observable, Subscription} from 'rxjs';
 import {ActivatedRoute} from '@angular/router';
-import {map} from 'rxjs/operators';
+import {debounceTime, map} from 'rxjs/operators';
+import {distinctUntilChanged} from 'rxjs/internal/operators/distinctUntilChanged';
 
 const output = console.log;
 
@@ -60,6 +61,7 @@ export class AppComponent implements OnInit, OnDestroy {
   templateSubscription: Subscription;
 
   idToken: string;
+  insecure: string;
   alerts: Alert[] = [];
 
   constructor(
@@ -69,8 +71,11 @@ export class AppComponent implements OnInit, OnDestroy {
   ) {
     this.route.queryParams.subscribe(params => {
       this.route.fragment.pipe(
-        map(fragment => new URLSearchParams(fragment).get('id_token'))
-      ).subscribe(res => { console.log('Got token: ' + res); this.idToken = res; });
+        map(fragment => {
+          const sp = new URLSearchParams(fragment);
+          return { idToken: sp.get('id_token'), insecure: sp.get('insecure') };
+        })
+      ).subscribe(({idToken, insecure}) => { this.idToken = idToken; this.insecure = insecure; });
     });
   }
 
@@ -190,6 +195,15 @@ export class AppComponent implements OnInit, OnDestroy {
         this.addDetail(product, this.newDetailEntry);
       }, (reason) => { output('rejected'); });
   }
+
+  newDetailTemplateSearch = (text$: Observable<string>) =>
+    text$.pipe(
+      debounceTime(200),
+      distinctUntilChanged(),
+      map(term => this.templates.filter(nm => nm.name.toLowerCase().indexOf(term.toLowerCase()) > -1).slice(0, 10))
+    )
+
+  newDetailTemplateFormatter = (x: {name: string}) => x.name;
 
   changeNewDetailTemplate(template: DetailTemplate) {
     this.newDetailTemplateJson = JSON.stringify(template.elements, undefined, 2);

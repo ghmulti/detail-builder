@@ -8,7 +8,7 @@
 <div style="text-align: center" class="m-4" *ngIf="idToken">
   <button type="button" class="btn btn-outline-success ml-2" (click)="exportData()">Экспорт в облако</button>
   <button type="button" class="btn btn-outline-success ml-2" (click)="importData()">Импорт из облака</button>
-  <button type="button" class="btn btn-danger float-right" (click)="cleanupData()">Очистить кэш</button>
+  <button *ngIf="insecure" type="button" class="btn btn-danger float-right" (click)="cleanupData()">Очистить кэш</button>
 </div>
 
 <div class="m-4" *ngIf="alerts.length > 0">
@@ -239,11 +239,8 @@
       <div class="form-group">
         <textarea class="form-control rounded-0" rows="3" id="newDetailAddition" name="newDetailAddition" placeholder="Дополнение" [(ngModel)]="newDetailEntry.addition"></textarea>
       </div>
-      <div ngbDropdown class="d-inline-block">
-        <button class="btn btn-outline-primary" id="dropdownBasic3" ngbDropdownToggle>Выбор шаблона детали</button>
-        <div ngbDropdownMenu aria-labelledby="dropdownBasic3">
-          <button *ngFor="let template of templates" (click)="changeNewDetailTemplate(template)" ngbDropdownItem>{{template.name}}</button>
-        </div>
+      <div class="form-group">
+        <input id="typeahead-basic" type="text" class="form-control" [ngbTypeahead]="newDetailTemplateSearch" (selectItem)="changeNewDetailTemplate($event.item)" [inputFormatter]="newDetailTemplateFormatter" [resultFormatter]="newDetailTemplateFormatter" placeholder="Выбор шаблона"/>
       </div>
       <div class="col mt-2" *ngIf="newDetailTemplateJson">
         <textarea name="newDetailTemplate" class="form-control rounded-0" rows="10" [(ngModel)]="newDetailTemplateJson"></textarea>
@@ -254,7 +251,6 @@
     <button type="button" class="btn btn-outline-dark" [disabled]="newDetailTemplateJson.trim().length == 0" (click)="modal.close()">Создать</button>
   </div>
 </ng-template>
-
 
 <ng-template #contentNewProduct let-modal>
   <div class="modal-header">
