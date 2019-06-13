@@ -33,7 +33,7 @@
         </div>
 
         <ngb-accordion #acc="ngbAccordion">  <!-- activeIds="ngb-panel-0"-->
-          <ngb-panel *ngFor="let product of products | searchProd:'id,name':productSearch" title="{{product.name}}">
+          <ngb-panel *ngFor="let product of products | searchProd:'id,name':productSearch" title="{{product.name + ' [' + productProgress(product) + '%]'}}">
             <ng-template ngbPanelContent>
                 <div>
                   <button type="button" class="btn btn-outline-success mr-2" (click)="newDetailDialog(product, content)">Новая деталь</button>
@@ -60,8 +60,8 @@
 <!--                </ngb-tabset>-->
                 <div class="mt-2">
                   <p *ngFor="let detailId of product.detailIds">
-                    <label class="pointer font-weight-bold" (click)="changeActiveDetail(details.get(detailId)); t.select('tab-detail-status')">{{details.get(detailId).name}}</label>
-                    <ngb-progressbar [showValue]="true" type="success" height="20px" [value]="100*details.get(detailId).state.progress/details.get(detailId).state.elements.length"></ngb-progressbar>
+                    <label class="pointer font-weight-bold" (click)="changeActiveDetail(details.get(detailId)); t.select('tab-detail-status')">Деталь: {{details.get(detailId).name}} Тип: {{details.get(detailId).type}}</label>
+                    <ngb-progressbar [showValue]="true" type="success" height="20px" [value]="detailProgress(details.get(detailId))"></ngb-progressbar>
                   </p>
                 </div>
             </ng-template>
@@ -96,7 +96,7 @@
           <table class="table table-striped">
             <thead>
             <tr>
-              <th scope="col">#</th>
+<!--              <th scope="col">#</th>-->
               <th scope="col">Название</th>
               <th scope="col">Тип</th>
               <th scope="col">Статус</th>
@@ -108,7 +108,7 @@
             </thead>
             <tbody>
             <tr *ngFor="let detail of pagedDetails | searchDet:'id,name':detailSearch" class="pointer" (click)="changeActiveDetail(detail); t.select('tab-detail-status')">
-              <th scope="row">{{ detail.id }}</th>
+<!--              <th scope="row">{{ detail.id }}</th>-->
               <td>{{ detail.name }}</td>
               <td>{{ detail.type }}</td>
               <td>{{ generateStatus(detail) }}</td>
@@ -149,7 +149,7 @@
 
           <div class="col mt-2" *ngIf="activeDetail" >
             <h2>{{activeDetail.name}}</h2>
-            <p><ngb-progressbar [showValue]="true" type="info" [value]="100*activeDetail.state.progress/activeDetail.state.elements.length"></ngb-progressbar></p>
+            <p><ngb-progressbar [showValue]="true" type="info" [value]="detailProgress(activeDetail)"></ngb-progressbar></p>
             <p><b>Тип</b>: {{activeDetail.type}}</p>
             <div>
               <label for="detail-addition" class="d-block font-weight-bold">Примечание:</label>

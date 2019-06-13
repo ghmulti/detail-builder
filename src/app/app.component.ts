@@ -284,4 +284,22 @@ export class AppComponent implements OnInit, OnDestroy {
   closeAlert(alert: Alert) {
     this.alerts.splice(this.alerts.indexOf(alert), 1);
   }
+
+  detailProgress(detail: Detail): string {
+    return (100 * detail.state.progress / detail.state.elements.length).toPrecision(3).toString();
+  }
+
+  productProgress(product: Product): string {
+    try {
+      return (
+        product.detailIds
+          .map(x => this.details.get(x))
+          .filter(x => x != null)
+          .map(detail => (100 * detail.state.progress / detail.state.elements.length))
+          .reduce((x, y) => x + y
+          ) / product.detailIds.length).toPrecision(3).toString();
+    } catch (e) {
+      console.error('error while calculating product progress', e)
+    }
+  }
 }
