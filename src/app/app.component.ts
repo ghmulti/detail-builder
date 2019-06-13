@@ -299,7 +299,7 @@ export class AppComponent implements OnInit, OnDestroy {
           .reduce((x, y) => x + y
           ) / product.detailIds.length).toPrecision(3).toString();
     } catch (e) {
-      console.error('error while calculating product progress', e)
+      console.error('error while calculating product progress', e);
     }
   }
 }
