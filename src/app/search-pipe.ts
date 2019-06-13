@@ -22,3 +22,15 @@ export class SearchDetailPipe implements PipeTransform {
 
   }
 }
+
+@Pipe({
+  name: 'enrich'
+})
+export class EnrichDetailPipe implements PipeTransform {
+  public transform(value: Detail[]): Detail[] {
+    return (value || []).map(x => {
+      x.currentLocation = x.state.elements[x.state.progress] != null ? x.state.elements[x.state.progress].location : null;
+      return x;
+    });
+  }
+}
