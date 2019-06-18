@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {BackendService} from './backend.service';
 import {buildRandomId, Detail, DetailTemplate, ElementInfo, Product, Alert, SyncObj} from './domain';
@@ -36,6 +36,30 @@ export class AppComponent implements OnInit, OnDestroy {
     return Array.from(this.details.values());
   }
 
+  constructor(
+    private modalService: NgbModal,
+    private backendService: BackendService,
+    private route: ActivatedRoute,
+    private ref: ChangeDetectorRef
+  ) {
+    this.route.queryParams.subscribe(params => {
+      this.route.fragment.pipe(
+        map(fragment => {
+          const sp = new URLSearchParams(fragment);
+          return {
+            idToken: sp.get('id_token'),
+            insecure: sp.get('insecure'),
+            accessToken: sp.get('access_token')
+          };
+        })
+      ).subscribe(({idToken, insecure, accessToken}) => {
+        this.idToken = idToken;
+        this.insecure = insecure;
+        this.accessToken = accessToken;
+      });
+    });
+  }
+
   details: Map<string, Detail>;
   detailsSize: number;
   detailSearch = '';
@@ -61,23 +85,11 @@ export class AppComponent implements OnInit, OnDestroy {
   templateSubscription: Subscription;
 
   idToken: string;
+  accessToken: string;
   insecure: string;
   alerts: Alert[] = [];
 
-  constructor(
-    private modalService: NgbModal,
-    private backendService: BackendService,
-    private route: ActivatedRoute
-  ) {
-    this.route.queryParams.subscribe(params => {
-      this.route.fragment.pipe(
-        map(fragment => {
-          const sp = new URLSearchParams(fragment);
-          return { idToken: sp.get('id_token'), insecure: sp.get('insecure') };
-        })
-      ).subscribe(({idToken, insecure}) => { this.idToken = idToken; this.insecure = insecure; });
-    });
-  }
+  listOfFiles = [];
 
   ngOnInit() {
     this.productSubscription = this.backendService.products$.subscribe((x) => {
@@ -301,5 +313,45 @@ export class AppComponent implements OnInit, OnDestroy {
     } catch (e) {
       console.error('error while calculating product progress', e);
     }
+  }
+
+  loadFilesFromS3() {
+    // @ts-ignore
+    AWS.config.region = 'eu-west-1';
+    // @ts-ignore
+    AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+      IdentityPoolId: 'eu-west-1:90b5154a-c51c-47da-a305-6b05746095ab',
+      Logins: {
+        'cognito-idp.eu-west-1.amazonaws.com/eu-west-1_vBUOw4rvl': this.idToken
+      }
+    });
+
+    const username = this.parseJwt(this.idToken)['cognito:username'];
+
+    // @ts-ignore
+    const s3 = new AWS.S3({
+      apiVersion: '2006-03-01',
+      params: {Bucket: 'detail-builder-files'}
+    });
+    s3.listObjects({Delimiter: '/', Prefix: username + '/'}, (err, data) => {
+      if (err) {
+        this.listOfFiles = [];
+        return alert('There was an error listing your albums: ' + err.message);
+      } else {
+        output('data', data);
+        this.listOfFiles = data.Contents;
+      }
+      this.ref.detectChanges();
+    });
+  }
+
+  parseJwt(token) {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map((c) => {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+
+    return JSON.parse(jsonPayload);
   }
 }

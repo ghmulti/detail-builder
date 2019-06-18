@@ -183,10 +183,14 @@
     <ngb-tab>
       <ng-template ngbTabTitle><b>Документы</b></ng-template>
       <ng-template ngbTabContent>
-<!--        <div class="m-1">-->
-<!--          <p>Ссылка на документ 1</p>-->
-<!--          <p>Ссылка на документ 2</p>-->
-<!--        </div>-->
+        <div class="m-1" *ngIf="idToken">
+          <button type="button" class="btn btn-outline-success" (click)="loadFilesFromS3()">Загрузить файлы</button>
+          <div class="mt-2">
+            <ul class="list-group">
+              <li class="list-group-item" *ngFor="let file of listOfFiles">{{file.Key}}</li>
+            </ul>
+          </div>
+        </div>
       </ng-template>
     </ngb-tab>
     <ngb-tab>
