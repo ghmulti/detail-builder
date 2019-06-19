@@ -4,7 +4,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import {FormsModule} from '@angular/forms';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {EnrichDetailPipe, SearchDetailPipe, SearchProductPipe} from './search-pipe';
 import {BackendService} from './backend.service';
 import {HttpClientModule} from '@angular/common/http';
@@ -20,6 +20,7 @@ import {HttpClientModule} from '@angular/common/http';
     BrowserModule,
     AppRoutingModule,
     NgbModule,
+    ReactiveFormsModule,
     FormsModule,
     HttpClientModule,
   ],

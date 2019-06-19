@@ -6,6 +6,7 @@ import {Observable, Subscription} from 'rxjs';
 import {ActivatedRoute} from '@angular/router';
 import {debounceTime, map} from 'rxjs/operators';
 import {distinctUntilChanged} from 'rxjs/internal/operators/distinctUntilChanged';
+import {FormBuilder, FormGroup} from '@angular/forms';
 
 const output = console.log;
 
@@ -37,6 +38,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   constructor(
+    private formBuilder: FormBuilder,
     private modalService: NgbModal,
     private backendService: BackendService,
     private route: ActivatedRoute,
@@ -90,6 +92,7 @@ export class AppComponent implements OnInit, OnDestroy {
   alerts: Alert[] = [];
 
   listOfFiles = [];
+  fileFormGroup: FormGroup;
 
   ngOnInit() {
     this.productSubscription = this.backendService.products$.subscribe((x) => {
@@ -101,6 +104,10 @@ export class AppComponent implements OnInit, OnDestroy {
     this.detailSubscription = this.backendService.details$.subscribe((v) => {
       this.details = v;
       this.detailsSize = Array.from(v.values()).length;
+    });
+
+    this.fileFormGroup = this.formBuilder.group({
+      document: ['']
     });
   }
 
@@ -295,6 +302,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   closeAlert(alert: Alert) {
     this.alerts.splice(this.alerts.indexOf(alert), 1);
+    this.ref.detectChanges();
   }
 
   detailProgress(detail: Detail): string {
@@ -316,6 +324,31 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   loadFilesFromS3() {
+    this.listOfFiles = [];
+    this.configureAws();
+    const prefix = this.getS3Prefix();
+
+    // @ts-ignore
+    const s3 = new AWS.S3({
+      apiVersion: '2006-03-01',
+      params: {Bucket: 'detail-builder-files'}
+    });
+    s3.listObjects({Delimiter: '/', Prefix: prefix + '/'}, (err, data) => {
+      if (err) {
+        this.listOfFiles = [];
+        this.alerts.push({
+          type: 'danger',
+          message: `Ошибка при загрузке списка ${err.message}`
+        });
+      } else {
+        output('data', data);
+        this.listOfFiles = data.Contents;
+      }
+      this.ref.detectChanges();
+    });
+  }
+
+  configureAws() {
     // @ts-ignore
     AWS.config.region = 'eu-west-1';
     // @ts-ignore
@@ -325,24 +358,6 @@ export class AppComponent implements OnInit, OnDestroy {
         'cognito-idp.eu-west-1.amazonaws.com/eu-west-1_vBUOw4rvl': this.idToken
       }
     });
-
-    const username = this.parseJwt(this.idToken)['cognito:username'];
-
-    // @ts-ignore
-    const s3 = new AWS.S3({
-      apiVersion: '2006-03-01',
-      params: {Bucket: 'detail-builder-files'}
-    });
-    s3.listObjects({Delimiter: '/', Prefix: username + '/'}, (err, data) => {
-      if (err) {
-        this.listOfFiles = [];
-        return alert('There was an error listing your albums: ' + err.message);
-      } else {
-        output('data', data);
-        this.listOfFiles = data.Contents;
-      }
-      this.ref.detectChanges();
-    });
   }
 
   parseJwt(token) {
@@ -351,7 +366,56 @@ export class AppComponent implements OnInit, OnDestroy {
     const jsonPayload = decodeURIComponent(atob(base64).split('').map((c) => {
       return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
     }).join(''));
-
     return JSON.parse(jsonPayload);
+  }
+
+  getS3Prefix() {
+    // @ts-ignore
+    return AWS.config.credentials.identityId;
+    // const username = this.parseJwt(this.idToken)['cognito:username'];
+    // return `620978346410:${username}`;
+  }
+
+  onFileChange(event) {
+    if (event.target.files.length > 0) {
+      const file = event.target.files[0];
+      this.fileFormGroup.get('document').setValue(file);
+    }
+  }
+
+  onSubmit() {
+    const file = this.fileFormGroup.get('document').value;
+    if (!file) {
+      console.log('File not choosen');
+      return;
+    }
+
+    const fileName = file.name;
+    this.configureAws();
+    const prefix = this.getS3Prefix();
+
+    // @ts-ignore
+    const s3 = new AWS.S3({
+      apiVersion: '2006-03-01',
+      params: {Bucket: 'detail-builder-files'}
+    });
+    s3.upload({
+      Key: `${prefix}/${fileName}`,
+      Body: file,
+    }, (err, data) => {
+      if (err) {
+        this.alerts.push({
+          type: 'danger',
+          message: `Ошибка при загрузке фото ${err.message}`
+        });
+      } else {
+        this.alerts.push({
+          type: 'success',
+          message: `Фото успешно загружен`
+        });
+      }
+      this.ref.detectChanges();
+      this.loadFilesFromS3();
+    });
   }
 }
