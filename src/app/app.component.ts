@@ -406,12 +406,12 @@ export class AppComponent implements OnInit, OnDestroy {
       if (err) {
         this.alerts.push({
           type: 'danger',
-          message: `Ошибка при загрузке фото ${err.message}`
+          message: `Ошибка при загрузке файла ${err.message}`
         });
       } else {
         this.alerts.push({
           type: 'success',
-          message: `Фото успешно загружен`
+          message: `Файл успешно загружен`
         });
       }
       this.ref.detectChanges();
