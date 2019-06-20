@@ -15,6 +15,7 @@ export interface SyncObj {
   templates: any;
   products: any;
   details: any;
+  attachments: any;
 }
 
 export interface ElementInfo {
@@ -34,6 +35,11 @@ export interface DetailTemplate {
   id: string;
   name: string;
   elements: ElementInfo[];
+}
+
+export interface Attachment {
+  id: string;
+  name: string;
 }
 
 export interface Detail {

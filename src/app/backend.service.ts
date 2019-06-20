@@ -1,4 +1,4 @@
-import {Detail, DetailTemplate, ElementInfo, Product, SyncObj} from './domain';
+import {Attachment, Detail, DetailTemplate, ElementInfo, Product, SyncObj} from './domain';
 import {BehaviorSubject, Observable} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {Injectable} from '@angular/core';
@@ -9,6 +9,7 @@ export class BackendService {
   details = new BehaviorSubject<Map<string, Detail>>(new Map<string, Detail>());
   products = new BehaviorSubject<Map<string, Product>>(new Map<string, Product>());
   templates = new BehaviorSubject<Map<string, DetailTemplate>>(new Map<string, DetailTemplate>());
+  attachments = new BehaviorSubject<Map<string, Attachment>>(new Map<string, Attachment>());
 
   constructor(
     private http: HttpClient
@@ -24,12 +25,16 @@ export class BackendService {
     const templatesJson = localStorage.getItem(`templates`);
     const temps = templatesJson != null ? new Map<string, DetailTemplate>(JSON.parse(templatesJson)) : new Map<string, DetailTemplate>();
     this.templates.next(temps);
+
+    const attachmentsJson = localStorage.getItem(`attachments`);
+    const atts = attachmentsJson != null ? new Map<string, Attachment>(JSON.parse(attachmentsJson)) : new Map<string, Attachment>();
+    this.attachments.next(atts);
   }
 
   get products$() { return this.products.asObservable(); }
   get details$() { return this.details.asObservable(); }
   get templates$() { return this.templates.asObservable(); }
-
+  get attachments$() { return this.attachments.asObservable(); }
 
   saveOrUpdateProduct(product: Product) {
     const newMap = this.products.getValue().set(product.id, product);
@@ -49,12 +54,20 @@ export class BackendService {
     localStorage.setItem(`templates`, JSON.stringify(Array.from(newMap.entries())));
   }
 
+  saveOrUpdateAttachments(atts: Array<Attachment>) {
+    let newMap = this.attachments.getValue();
+    atts.forEach((x) => { newMap = newMap.set(x.id, x); });
+    this.attachments.next(newMap);
+    localStorage.setItem(`attachments`, JSON.stringify(Array.from(newMap.entries())));
+  }
+
   exportData(idToken: string) {
     const body = JSON.stringify(
       {
         templates: Array.from(this.templates.getValue().entries()),
         products: Array.from(this.products.getValue().entries()),
-        details: Array.from(this.details.getValue().entries())
+        details: Array.from(this.details.getValue().entries()),
+        attachments: Array.from(this.attachments.getValue().entries())
       }
     );
     return this.http.post('https://hfofod4c8d.execute-api.eu-west-1.amazonaws.com/dev/sync', body , {headers: { Authorization: idToken }})
@@ -71,6 +84,7 @@ export class BackendService {
     localStorage.setItem(`templates`, JSON.stringify(so.templates));
     localStorage.setItem(`details`, JSON.stringify(so.details));
     localStorage.setItem(`products`, JSON.stringify(so.products));
+    localStorage.setItem(`attachments`, JSON.stringify(so.attachments));
     location.reload();
   }
 

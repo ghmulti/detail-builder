@@ -184,15 +184,16 @@
       <ng-template ngbTabTitle><b>Документы</b></ng-template>
       <ng-template ngbTabContent>
         <div class="m-1" *ngIf="idToken">
-          <button type="button" class="btn btn-outline-success" (click)="loadFilesFromS3()">Обновить список файлов</button>
           <div class="mt-2">
             <form [formGroup]="fileFormGroup" (ngSubmit)="onSubmit()">
               <input type="file" name="document" (change)="onFileChange($event)" />
               <button class="btn btn-outline-success" type="submit" [disabled]="!fileFormGroup.controls['document'].value">Загрузить файл</button>
+              <button type="button" class="btn btn-outline-success ml-4" (click)="loadFilesFromS3()">Обновить список файлов</button>
             </form>
-            <ul class="list-group">
-              <li class="list-group-item" *ngFor="let file of listOfFiles">{{file.Key}}</li>
+            <ul class="list-group mt-2">
+              <li class="list-group-item pointer" (click)="downloadFile(file)" *ngFor="let file of attachments">{{file.name}}</li>
             </ul>
+            <img *ngIf="currentAttachment" [src]="currentAttachment" style="max-width: 100%;"/>
           </div>
         </div>
       </ng-template>

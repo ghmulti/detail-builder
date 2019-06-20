@@ -1,12 +1,13 @@
 import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {BackendService} from './backend.service';
-import {buildRandomId, Detail, DetailTemplate, ElementInfo, Product, Alert, SyncObj} from './domain';
+import {buildRandomId, Detail, DetailTemplate, ElementInfo, Product, Alert, SyncObj, Attachment} from './domain';
 import {Observable, Subscription} from 'rxjs';
 import {ActivatedRoute} from '@angular/router';
 import {debounceTime, map} from 'rxjs/operators';
 import {distinctUntilChanged} from 'rxjs/internal/operators/distinctUntilChanged';
 import {FormBuilder, FormGroup} from '@angular/forms';
+import { DomSanitizer } from '@angular/platform-browser';
 
 const output = console.log;
 
@@ -38,6 +39,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   constructor(
+    private sanitizer: DomSanitizer,
     private formBuilder: FormBuilder,
     private modalService: NgbModal,
     private backendService: BackendService,
@@ -85,13 +87,15 @@ export class AppComponent implements OnInit, OnDestroy {
   detailSubscription: Subscription;
   productSubscription: Subscription;
   templateSubscription: Subscription;
+  attachmentSubscription: Subscription;
 
   idToken: string;
   accessToken: string;
   insecure: string;
   alerts: Alert[] = [];
 
-  listOfFiles = [];
+  currentAttachment = null;
+  attachments: Attachment[];
   fileFormGroup: FormGroup;
 
   ngOnInit() {
@@ -105,6 +109,9 @@ export class AppComponent implements OnInit, OnDestroy {
       this.details = v;
       this.detailsSize = Array.from(v.values()).length;
     });
+    this.attachmentSubscription = this.backendService.attachments$.subscribe((v) => {
+      this.attachments = Array.from(v.values());
+    });
 
     this.fileFormGroup = this.formBuilder.group({
       document: ['']
@@ -115,6 +122,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.productSubscription.unsubscribe();
     this.detailSubscription.unsubscribe();
     this.templateSubscription.unsubscribe();
+    this.attachmentSubscription.unsubscribe();
   }
 
   changeActiveDetail(detail: Detail) {
@@ -292,6 +300,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.backendService.saveOrUpdateSyncObject({
       details: [],
       products: [],
+      attachments: [],
       templates: [[defaultTemplateId, {
         id: defaultTemplateId,
         elements: Object.assign([], DEFAULT_TEMPLATE_ELEMENTS),
@@ -324,7 +333,6 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   loadFilesFromS3() {
-    this.listOfFiles = [];
     this.configureAws();
     const prefix = this.getS3Prefix();
 
@@ -335,14 +343,17 @@ export class AppComponent implements OnInit, OnDestroy {
     });
     s3.listObjects({Delimiter: '/', Prefix: prefix + '/'}, (err, data) => {
       if (err) {
-        this.listOfFiles = [];
         this.alerts.push({
           type: 'danger',
           message: `Ошибка при загрузке списка ${err.message}`
         });
       } else {
-        output('data', data);
-        this.listOfFiles = data.Contents;
+        // output('data', data);
+        const atts = data.Contents
+          .map(x => ({id: x.Key, name: x.Key.split('/')[1].trim() }))
+          .filter(x => x.name.length > 0);
+        output(atts);
+        this.backendService.saveOrUpdateAttachments(atts);
       }
       this.ref.detectChanges();
     });
@@ -417,5 +428,46 @@ export class AppComponent implements OnInit, OnDestroy {
       this.ref.detectChanges();
       this.loadFilesFromS3();
     });
+  }
+
+  downloadFile(file: Attachment) {
+    if (file.id.split('.').pop() !== 'jpg') {
+      this.alerts.push({
+        type: 'danger',
+        message: `Просмотр доступен только для jpg формата`
+      });
+      return;
+    }
+
+    this.configureAws();
+
+    // @ts-ignore
+    const s3 = new AWS.S3({
+      apiVersion: '2006-03-01',
+      params: {Bucket: 'detail-builder-files'}
+    });
+    s3.getObject(
+      { Bucket:  'detail-builder-files', Key: file.id }, (err, data) => {
+        if (err) {
+          this.alerts.push({
+            type: 'danger',
+            message: `Ошибка при загрузке файла ${err.message}`
+          });
+        } else {
+          this.alerts.push({
+            type: 'success',
+            message: `Файл успешно загружен`
+          });
+        }
+        const payload =  'data:image/jpeg;base64,' + this.encode(data.Body);
+        this.currentAttachment = this.sanitizer.bypassSecurityTrustUrl(payload);
+        this.ref.detectChanges();
+      }
+    );
+  }
+
+  encode(data) {
+    const str = data.reduce((a, b) => a + String.fromCharCode(b), '');
+    return btoa(str).replace(/.{76}(?=.)/g, '$&\n');
   }
 }
