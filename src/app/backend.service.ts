@@ -15,19 +15,23 @@ export class BackendService {
     private http: HttpClient
   ) {
     const productsJson = localStorage.getItem(`products`);
-    const prods = productsJson != null ? new Map<string, Product>(JSON.parse(productsJson)) : new Map<string, Product>();
+    const prods = productsJson != null && productsJson !== 'undefined'
+      ? new Map<string, Product>(JSON.parse(productsJson)) : new Map<string, Product>();
     this.products.next(prods);
 
     const detailsJson = localStorage.getItem(`details`);
-    const dets = detailsJson != null ? new Map<string, Detail>(JSON.parse(detailsJson)) : new Map<string, Detail>();
+    const dets = detailsJson != null && detailsJson !== 'undefined' ?
+      new Map<string, Detail>(JSON.parse(detailsJson)) : new Map<string, Detail>();
     this.details.next(dets);
 
     const templatesJson = localStorage.getItem(`templates`);
-    const temps = templatesJson != null ? new Map<string, DetailTemplate>(JSON.parse(templatesJson)) : new Map<string, DetailTemplate>();
+    const temps = templatesJson != null && templatesJson !== 'undefined' ?
+      new Map<string, DetailTemplate>(JSON.parse(templatesJson)) : new Map<string, DetailTemplate>();
     this.templates.next(temps);
 
     const attachmentsJson = localStorage.getItem(`attachments`);
-    const atts = attachmentsJson != null ? new Map<string, Attachment>(JSON.parse(attachmentsJson)) : new Map<string, Attachment>();
+    const atts = attachmentsJson != null && attachmentsJson !== 'undefined'
+      ? new Map<string, Attachment>(JSON.parse(attachmentsJson)) : new Map<string, Attachment>();
     this.attachments.next(atts);
   }
 
@@ -81,10 +85,18 @@ export class BackendService {
   }
 
   saveOrUpdateSyncObject(so: SyncObj) {
-    localStorage.setItem(`templates`, JSON.stringify(so.templates));
-    localStorage.setItem(`details`, JSON.stringify(so.details));
-    localStorage.setItem(`products`, JSON.stringify(so.products));
-    localStorage.setItem(`attachments`, JSON.stringify(so.attachments));
+    if (so.templates == null) {
+      localStorage.setItem(`templates`, JSON.stringify(so.templates));
+    }
+    if (so.details == null) {
+      localStorage.setItem(`details`, JSON.stringify(so.details));
+    }
+    if (so.products != null) {
+      localStorage.setItem(`products`, JSON.stringify(so.products));
+    }
+    if (so.attachments != null) {
+      localStorage.setItem(`attachments`, JSON.stringify(so.attachments));
+    }
     location.reload();
   }
 

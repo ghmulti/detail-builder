@@ -5,9 +5,9 @@
   </h2>
 </div>
 
-<div style="text-align: center" class="m-4" *ngIf="idToken">
-  <button type="button" class="btn btn-outline-success ml-2" (click)="exportData()">Экспорт в облако</button>
-  <button type="button" class="btn btn-outline-success ml-2" (click)="importData()">Импорт из облака</button>
+<div style="text-align: center; min-height: 38px;" class="m-4" *ngIf="idToken || insecure">
+  <button *ngIf="idToken" type="button" class="btn btn-outline-success ml-2" (click)="exportData()">Экспорт в облако</button>
+  <button *ngIf="idToken" type="button" class="btn btn-outline-success ml-2" (click)="importData()">Импорт из облака</button>
   <button *ngIf="insecure" type="button" class="btn btn-danger float-right" (click)="cleanupData()">Очистить кэш</button>
 </div>
 
