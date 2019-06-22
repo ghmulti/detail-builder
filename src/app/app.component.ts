@@ -69,6 +69,7 @@ export class AppComponent implements OnInit, OnDestroy {
   detailSearch = '';
 
   activeDetail: Detail;
+  activeDetailAttachment = { payload: null };
   activeTemplate: DetailTemplate;
   activeTemplateJson: string;
 
@@ -83,6 +84,7 @@ export class AppComponent implements OnInit, OnDestroy {
   newProductEntry: Product;
   newDetailTemplateJson: string;
   newTemplate: DetailTemplate;
+  selectedAttachments: Attachment[];
 
   detailSubscription: Subscription;
   productSubscription: Subscription;
@@ -94,7 +96,7 @@ export class AppComponent implements OnInit, OnDestroy {
   insecure: string;
   alerts: Alert[] = [];
 
-  currentAttachment = null;
+  currentAttachment = { payload: null };
   attachments: Attachment[];
   fileFormGroup: FormGroup;
 
@@ -259,8 +261,25 @@ export class AppComponent implements OnInit, OnDestroy {
     };
     this.modalService.open(content, {ariaLabelledBy: 'modal-basic-title'})
       .result.then((result) => {
-      this.addTemplate(this.newTemplate);
-    }, (reason) => { output('rejected'); });
+        this.addTemplate(this.newTemplate);
+      }, (reason) => { output('rejected'); });
+  }
+
+  appendAttachmentDialog(content) {
+    this.selectedAttachments = [];
+    this.modalService.open(content, {ariaLabelledBy: 'modal-basic-title'})
+      .result.then((result) => {
+        this.activeDetail.attachments = this.selectedAttachments;
+        this.backendService.saveOrUpdateDetail(this.activeDetail);
+      });
+  }
+
+  toggleAppendAttachment(attachment: Attachment) {
+    if (this.selectedAttachments.indexOf(attachment) === -1) {
+      this.selectedAttachments.push(attachment);
+    } else {
+      this.selectedAttachments.splice(this.selectedAttachments.indexOf(attachment), 1);
+    }
   }
 
   exportData() {
@@ -430,7 +449,7 @@ export class AppComponent implements OnInit, OnDestroy {
     });
   }
 
-  downloadFile(file: Attachment) {
+  downloadFile(file: Attachment, target) {
     if (file.id.split('.').pop() !== 'jpg') {
       this.alerts.push({
         type: 'danger',
@@ -460,7 +479,7 @@ export class AppComponent implements OnInit, OnDestroy {
           });
         }
         const payload =  'data:image/jpeg;base64,' + this.encode(data.Body);
-        this.currentAttachment = this.sanitizer.bypassSecurityTrustUrl(payload);
+        target.payload = this.sanitizer.bypassSecurityTrustUrl(payload);
         this.ref.detectChanges();
       }
     );

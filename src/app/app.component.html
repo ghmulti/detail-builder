@@ -144,7 +144,10 @@
                 <button *ngFor="let detail of allDetails" (click)="changeActiveDetail(detail)" ngbDropdownItem>{{detail.name}}</button>
               </div>
             </div>
-            <button type="button" class="btn btn-danger float-right" (click)="deleteActiveDetail()" *ngIf="activeDetail">Удалить деталь</button>
+            <div class="float-right" *ngIf="activeDetail">
+              <button type="button" class="btn btn-outline-success mr-2" (click)="appendAttachmentDialog(contentAppendAttachment)">Прикрепить документ</button>
+              <button type="button" class="btn btn-danger" (click)="deleteActiveDetail()">Удалить деталь</button>
+            </div>
           </div>
 
           <div class="col mt-2" *ngIf="activeDetail" >
@@ -156,6 +159,7 @@
               <div id="detail-addition">{{activeDetail.addition}}</div>
 <!--              <textarea class="form-control rounded-0" rows="4" id="detail-addition" [(ngModel)]="activeDetail.addition"></textarea>-->
             </div>
+
             <table class="table table-striped">
               <thead>
               <tr>
@@ -175,6 +179,14 @@
               </tr>
               </tbody>
             </table>
+
+            <div>
+              <label class="d-block font-weight-bold">Документы:</label>
+              <ul class="list-group mt-2">
+                <li class="list-group-item pointer" (click)="downloadFile(file, activeDetailAttachment)" *ngFor="let file of activeDetail.attachments">{{file.name}}</li>
+              </ul>
+              <img *ngIf="activeDetailAttachment.payload" [src]="activeDetailAttachment.payload" style="max-width: 100%;"/>
+            </div>
           </div>
 
         </div>
@@ -183,17 +195,17 @@
     <ngb-tab>
       <ng-template ngbTabTitle><b>Документы</b></ng-template>
       <ng-template ngbTabContent>
-        <div class="m-1" *ngIf="idToken">
+        <div class="m-1">
           <div class="mt-2">
             <form [formGroup]="fileFormGroup" (ngSubmit)="onSubmit()">
               <input type="file" name="document" (change)="onFileChange($event)" />
-              <button class="btn btn-outline-success" type="submit" [disabled]="!fileFormGroup.controls['document'].value">Загрузить файл</button>
-              <button type="button" class="btn btn-outline-success ml-4" (click)="loadFilesFromS3()">Обновить список файлов</button>
+              <button class="btn btn-outline-success" type="submit" [disabled]="!fileFormGroup.controls['document'].value || !idToken">Загрузить файл</button>
+              <button type="button" class="btn btn-outline-success ml-4" [disabled]="!idToken" (click)="loadFilesFromS3()">Обновить список файлов</button>
             </form>
             <ul class="list-group mt-2">
-              <li class="list-group-item pointer" (click)="downloadFile(file)" *ngFor="let file of attachments">{{file.name}}</li>
+              <li class="list-group-item pointer" (click)="downloadFile(file, currentAttachment)" *ngFor="let file of attachments">{{file.name}}</li>
             </ul>
-            <img *ngIf="currentAttachment" [src]="currentAttachment" style="max-width: 100%;"/>
+            <img *ngIf="currentAttachment.payload" [src]="currentAttachment.payload" style="max-width: 100%;"/>
           </div>
         </div>
       </ng-template>
@@ -296,6 +308,23 @@
   </div>
   <div class="modal-footer">
     <button type="button" class="btn btn-outline-dark" (click)="modal.close()">Создать</button>
+  </div>
+</ng-template>
+
+<ng-template #contentAppendAttachment let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title">Прикрепить файл</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body" style="max-height: 400px; overflow: auto;">
+    <ul class="list-group">
+      <li class="list-group-item hover-cursor" [class.active]="selectedAttachments.indexOf(a) !== -1" (click)="toggleAppendAttachment(a)" *ngFor="let a of attachments">{{ a.name }}</li>
+    </ul>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-dark" (click)="modal.close()">Подтвердить</button>
   </div>
 </ng-template>
 

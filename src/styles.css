@@ -8,3 +8,7 @@
 .myCustomModalClass .modal-dialog {
   max-height: 600px;
 }
+
+.hover-cursor:hover {
+  cursor: pointer;
+}
