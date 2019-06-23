@@ -85,16 +85,16 @@ export class BackendService {
   }
 
   saveOrUpdateSyncObject(so: SyncObj) {
-    if (so.templates == null) {
+    if (so.templates !== null) {
       localStorage.setItem(`templates`, JSON.stringify(so.templates));
     }
-    if (so.details == null) {
+    if (so.details !== null) {
       localStorage.setItem(`details`, JSON.stringify(so.details));
     }
-    if (so.products != null) {
+    if (so.products !== null) {
       localStorage.setItem(`products`, JSON.stringify(so.products));
     }
-    if (so.attachments != null) {
+    if (so.attachments !== null) {
       localStorage.setItem(`attachments`, JSON.stringify(so.attachments));
     }
     location.reload();
