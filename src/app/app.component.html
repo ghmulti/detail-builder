@@ -1,7 +1,7 @@
 <!--The content below is only a placeholder and can be replaced.-->
 <div style="text-align:center">
   <h2>
-    Кабинет (<a href="https://detail-builder.auth.eu-west-1.amazoncognito.com/login?response_type=token&client_id=65dnhn25nj6oq8ii1jkiiv8pcd&redirect_uri=https://d1f57b3x5hwhff.cloudfront.net">Логин</a>)
+    Кабинет (<a href="https://detail-builder.auth.eu-west-1.amazoncognito.com/login?response_type=token&client_id=65dnhn25nj6oq8ii1jkiiv8pcd&redirect_uri=https://d1f57b3x5hwhff.cloudfront.net">Авторизация</a>)
   </h2>
 </div>
 
@@ -182,10 +182,15 @@
 
             <div>
               <label class="d-block font-weight-bold">Документы:</label>
+              <button type="button" class="btn btn-outline-success" *ngIf="idToken" (click)="preloadAttachments()">Отобразить все документы</button>
               <ul class="list-group mt-2">
                 <li class="list-group-item pointer" (click)="downloadFile(file, activeDetailAttachment)" *ngFor="let file of activeDetail.attachments">{{file.name}}</li>
               </ul>
               <img *ngIf="activeDetailAttachment.payload" [src]="activeDetailAttachment.payload" style="max-width: 100%;"/>
+
+              <div *ngIf="activeDetailAttachment.presignedUrls.length > 0">
+                <img *ngFor="let psUrl of activeDetailAttachment.presignedUrls" [src]="psUrl" style="max-width: 100%;"/>
+              </div>
             </div>
           </div>
 

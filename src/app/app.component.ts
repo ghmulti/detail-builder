@@ -69,7 +69,7 @@ export class AppComponent implements OnInit, OnDestroy {
   detailSearch = '';
 
   activeDetail: Detail;
-  activeDetailAttachment = { payload: null };
+  activeDetailAttachment = { payload: null, presignedUrls: [] };
   activeTemplate: DetailTemplate;
   activeTemplateJson: string;
 
@@ -129,6 +129,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   changeActiveDetail(detail: Detail) {
     this.activeDetail = detail;
+    this.activeDetailAttachment = { payload: null, presignedUrls: [] };
   }
 
   generateStatus(detail: Detail): string {
@@ -173,7 +174,7 @@ export class AppComponent implements OnInit, OnDestroy {
     if (product.detailIds.length > 0) {
       product.detailIds.forEach((detailId) => { this.backendService.deleteDetail(detailId); });
       if (this.activeDetail != null && product.detailIds.indexOf(this.activeDetail.id) >= 0) {
-        this.activeDetail = null;
+        this.changeActiveDetail(null);
         this.activeTemplateJson = '';
       }
     }
@@ -192,7 +193,7 @@ export class AppComponent implements OnInit, OnDestroy {
       }
     }
     this.backendService.deleteDetail(this.activeDetail.id);
-    this.activeDetail = null;
+    this.changeActiveDetail(null);
   }
 
   deleteActiveTemplate() {
@@ -488,5 +489,32 @@ export class AppComponent implements OnInit, OnDestroy {
   encode(data) {
     const str = data.reduce((a, b) => a + String.fromCharCode(b), '');
     return btoa(str).replace(/.{76}(?=.)/g, '$&\n');
+  }
+
+  preloadAttachments() {
+    this.configureAws();
+
+    // @ts-ignore
+    const s3 = new AWS.S3({region: 'eu-west-1'});
+    const signedUrlExpireSeconds = 60 * 5;
+    const promises = this.activeDetail.attachments.map((att) => {
+      return new Promise((resolve, reject) => {
+        s3.getSignedUrl('getObject', {
+          Bucket: 'detail-builder-files',
+          Key: att.id,
+          Expires: signedUrlExpireSeconds
+        }, (err, url) => {
+          if (err != null) {
+            reject(err);
+          } else {
+            resolve(url);
+          }
+        });
+      });
+    });
+
+    Promise.all(promises).then((values) => {
+      this.activeDetailAttachment.presignedUrls = values;
+    });
   }
 }
