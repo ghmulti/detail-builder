@@ -72,6 +72,7 @@ export class AppComponent implements OnInit, OnDestroy {
   activeDetailAttachment = { payload: null, presignedUrls: [] };
   activeTemplate: DetailTemplate;
   activeTemplateJson: string;
+  comment: string;
 
   page = 1;
   pageSize = 50;
@@ -138,8 +139,15 @@ export class AppComponent implements OnInit, OnDestroy {
     return `${detail.status} [${current}/${total}]`;
   }
 
-  activeDetailStateComplete() {
-    this.activeDetail.state.elements[this.activeDetail.state.progress].completedAt = new Date();
+  activeDetailStateComplete(comment) {
+    const currentState = this.activeDetail.state.elements[this.activeDetail.state.progress];
+    if (comment) {
+      if (!currentState.comments) {
+        currentState.comments = [];
+      }
+      currentState.comments.push(comment);
+    }
+    currentState.completedAt = new Date();
     this.activeDetail.state.progress += 1;
     if (this.activeDetail.state.progress === this.activeDetail.state.elements.length) {
       this.activeDetail.status = 'Готово';
@@ -273,6 +281,14 @@ export class AppComponent implements OnInit, OnDestroy {
         this.activeDetail.attachments = this.selectedAttachments;
         this.backendService.saveOrUpdateDetail(this.activeDetail);
       });
+  }
+
+  addDetailCommentDialog(content) {
+    this.comment = '';
+    this.modalService.open(content, {ariaLabelledBy: 'modal-basic-title'})
+      .result.then((result) => {
+        this.activeDetailStateComplete(this.comment);
+      }, () => {});
   }
 
   toggleAppendAttachment(attachment: Attachment) {
