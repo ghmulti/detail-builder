@@ -139,14 +139,8 @@ export class AppComponent implements OnInit, OnDestroy {
     return `${detail.status} [${current}/${total}]`;
   }
 
-  activeDetailStateComplete(comment) {
+  activeDetailStateComplete() {
     const currentState = this.activeDetail.state.elements[this.activeDetail.state.progress];
-    if (comment) {
-      if (!currentState.comments) {
-        currentState.comments = [];
-      }
-      currentState.comments.push(comment);
-    }
     currentState.completedAt = new Date();
     this.activeDetail.state.progress += 1;
     if (this.activeDetail.state.progress === this.activeDetail.state.elements.length) {
@@ -283,11 +277,20 @@ export class AppComponent implements OnInit, OnDestroy {
       });
   }
 
-  addDetailCommentDialog(content) {
-    this.comment = '';
+  processDetailCommentDialog(content, stateIndex, commentIndex = -1) {
+    const currentState = this.activeDetail.state.elements[stateIndex];
+    this.comment = stateIndex >= 0 && commentIndex >= 0 ? currentState.comments[commentIndex] : '';
     this.modalService.open(content, {ariaLabelledBy: 'modal-basic-title'})
       .result.then((result) => {
-        this.activeDetailStateComplete(this.comment);
+        if (!currentState.comments) {
+          currentState.comments = [];
+        }
+        if (commentIndex < 0) {
+          currentState.comments.push(this.comment);
+        } else {
+          currentState.comments[commentIndex] = this.comment;
+        }
+        this.backendService.saveOrUpdateDetail(this.activeDetail);
       }, () => {});
   }
 

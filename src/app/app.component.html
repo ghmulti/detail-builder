@@ -170,18 +170,18 @@
               </thead>
               <tbody>
               <tr>
-                <td *ngFor="let element of activeDetail.state.elements; index as i">
+                <td *ngFor="let element of activeDetail.state.elements; index as stateIndex">
                   <div *ngIf="element.completedAt">{{ element.completedAt | date:'dd.MM HH:mm:ss' }}</div>
-                  <div *ngIf="i < activeDetail.state.progress">Готово</div>
-                  <div *ngIf="i == activeDetail.state.progress" style="text-align: center">
-                    <button type="button" (click)="activeDetailStateComplete(null)" class="btn btn-success">Завершить</button><br />
-                    <button type="button" (click)="addDetailCommentDialog(addCommentContent)" class="btn btn-success mt-2">Комментарий</button>
+                  <div *ngIf="stateIndex < activeDetail.state.progress">Готово</div>
+                  <div *ngIf="stateIndex == activeDetail.state.progress" style="text-align: center">
+                    <button type="button" (click)="activeDetailStateComplete()" class="btn btn-success">Завершить</button><br />
+                    <button type="button" (click)="processDetailCommentDialog(addCommentContent, stateIndex)" class="btn btn-success mt-2">Комментарий</button>
                   </div>
-                  <div *ngIf="i > activeDetail.state.progress" class="disabled">Не доступно</div>
+                  <div *ngIf="stateIndex > activeDetail.state.progress" class="disabled">Не доступно</div>
 
                   <div *ngIf="element.comments && element.comments.length > 0" class="mt-2">
                     <label class="font-weight-bold">Комментарии:</label>
-                    <div *ngFor="let comment of element.comments">{{ comment }}</div>
+                    <div *ngFor="let comment of element.comments; index as commentIndex" class="hover-cursor" (click)="processDetailCommentDialog(addCommentContent, stateIndex, commentIndex)">{{ comment }}</div>
                   </div>
                 </td>
               </tr>
@@ -270,7 +270,7 @@
     </form>
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-outline-dark" (click)="modal.close()">Добавить комментарий и завершить</button>
+    <button type="button" class="btn btn-outline-dark" (click)="modal.close()">Добавить комментарий</button>
   </div>
 </ng-template>
 
