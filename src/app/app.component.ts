@@ -274,7 +274,7 @@ export class AppComponent implements OnInit, OnDestroy {
       .result.then((result) => {
         this.activeDetail.attachments = this.selectedAttachments;
         this.backendService.saveOrUpdateDetail(this.activeDetail);
-      });
+      }, (reason) => { output('rejected'); });
   }
 
   processDetailCommentDialog(content, stateIndex, commentIndex = -1) {
@@ -291,7 +291,7 @@ export class AppComponent implements OnInit, OnDestroy {
           currentState.comments[commentIndex] = this.comment;
         }
         this.backendService.saveOrUpdateDetail(this.activeDetail);
-      }, () => {});
+      }, (reason) => { output('rejected'); });
   }
 
   toggleAppendAttachment(attachment: Attachment) {
