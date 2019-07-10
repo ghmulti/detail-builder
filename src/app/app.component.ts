@@ -131,6 +131,7 @@ export class AppComponent implements OnInit, OnDestroy {
   changeActiveDetail(detail: Detail) {
     this.activeDetail = detail;
     this.activeDetailAttachment = { payload: null, presignedUrls: [] };
+    this.preloadAttachments();
   }
 
   generateStatus(detail: Detail): string {
@@ -511,6 +512,13 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   preloadAttachments() {
+    if (this.activeDetail == null) {
+      return;
+    }
+    if (this.idToken == null) {
+      return;
+    }
+
     this.configureAws();
 
     // @ts-ignore
