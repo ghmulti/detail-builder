@@ -157,6 +157,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   updateActiveTemplate() {
     this.activeTemplate.elements = JSON.parse(this.activeTemplateJson);
+    this.backendService.saveOrUpdateTemplate(this.activeTemplate);
   }
 
   addDetail(product: Product, detail: Detail) {
