@@ -156,8 +156,15 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   updateActiveTemplate() {
-    this.activeTemplate.elements = JSON.parse(this.activeTemplateJson);
-    this.backendService.saveOrUpdateTemplate(this.activeTemplate);
+    try {
+      this.activeTemplate.elements = JSON.parse(this.activeTemplateJson);
+      this.backendService.saveOrUpdateTemplate(this.activeTemplate);
+    } catch (err) {
+      this.alerts.push({
+        type: 'danger',
+        message: `Ошибка при сохранении: ${err.message}`
+      });
+    }
   }
 
   addDetail(product: Product, detail: Detail) {
@@ -360,14 +367,16 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   productProgress(product: Product): string {
+    if (product.detailIds.length === 0) {
+      return '0.00';
+    }
     try {
       return (
         product.detailIds
           .map(x => this.details.get(x))
           .filter(x => x != null)
           .map(detail => (100 * detail.state.progress / detail.state.elements.length))
-          .reduce((x, y) => x + y
-          ) / product.detailIds.length).toPrecision(3).toString();
+          .reduce((x, y) => x + y, 0) / product.detailIds.length).toPrecision(3).toString();
     } catch (e) {
       console.error('error while calculating product progress', e);
     }
@@ -513,7 +522,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   preloadAttachments() {
-    if (this.activeDetail == null) {
+    if (this.activeDetail == null || this.activeDetail.attachments == null) {
       return;
     }
     if (this.idToken == null) {
