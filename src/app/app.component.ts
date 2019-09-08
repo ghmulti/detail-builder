@@ -129,6 +129,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   changeActiveDetail(detail: Detail) {
+    console.log('Active detail', detail);
     this.activeDetail = detail;
     this.activeDetailAttachment = { payload: null, presignedUrls: [] };
     this.preloadAttachments();
